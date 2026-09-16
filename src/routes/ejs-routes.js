@@ -1,3 +1,4 @@
+import express from 'express';
 import * as tripController from '../controllers/trips.js';
 
 const router = express.Router();

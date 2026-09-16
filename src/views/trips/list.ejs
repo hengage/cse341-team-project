@@ -18,7 +18,7 @@
 </div>
 
 <template id="route-card-template">
-    <div class="route-card">
+    <div class="route-card" id="region-container">
         <div class="route-header">
             <h2 class="route-name"></h2>
             <span class="route-region"></span>
@@ -82,6 +82,7 @@
 
         trips.forEach(trip => {
             const clone = template.content.cloneNode(true);
+            clone.querySelector('.route-card').classList.add(trip.region);
             clone.querySelector('.route-name').textContent = trip.name;
             clone.querySelector('.route-region').textContent = trip.region;
             clone.querySelector('.station-name:first-of-type').textContent = trip.startStation;
