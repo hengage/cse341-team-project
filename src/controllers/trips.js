@@ -3,9 +3,9 @@ import * as tripModel from '../models/trips.js';
 export const getAllTrips = async (req, res) => {
   try {
     const trips = await tripModel.getAllTrips();
-    res.json(trips);
+    return res.json(trips);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -15,9 +15,9 @@ export const getTripById = async (req, res) => {
     if (!trip) {
       return res.status(404).json({ message: 'Trip not found' });
     }
-    res.json(trip);
+    return res.json(trip);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
