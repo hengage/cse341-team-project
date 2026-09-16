@@ -68,11 +68,16 @@
 
 <script>
     async function fetchTrips() {
-        const response = await fetch('/api/trips');
-        const trips = await response.json();
-        
-        // Populate filters and render trips
-        renderTrips(trips);
+        try {
+            const response = await fetch('/api/trips');
+            if (!response.ok) {
+                throw new Error('Failed to fetch trips');
+            }
+            const trips = await response.json();
+            renderTrips(trips);
+        } catch (error) {
+            document.getElementById('routes-grid').innerHTML = '<p>Error loading trips. Please try again later.</p>';
+        }
     }
 
     function renderTrips(trips) {
@@ -90,6 +95,7 @@
             clone.querySelector('.duration').textContent = trip.duration;
             clone.querySelector('.distance').textContent = trip.distance;
             clone.querySelector('.best-season').textContent = trip.bestSeason;
+            clone.querySelector('.season-badge').classList.add('season-' + trip.bestSeason);
             clone.querySelector('.route-description').textContent = trip.description;
             
             const highlightsList = clone.querySelector('.highlights-list');
