@@ -1,8 +1,8 @@
-import express from 'express';
-// Import EJS controllers here when refactored
+import * as tripController from '../controllers/trips.js';
 
 const router = express.Router();
 
-// EJS routes here
+// EJS routes
+router.get('/trips', tripController.getTripsPage);
 
 export default router;

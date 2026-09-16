@@ -20,3 +20,9 @@ export const getTripById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getTripsPage = async (req, res) => {
+  res.render('trips/list', {
+    title: 'Scenic Train Trips'
+  });
+};
