@@ -88,8 +88,101 @@ const hookTrainsCatalog = async () => {
     }
 };
 
+const hookScheduleHydration = () => {
+    const detailEl = document.querySelector('.route-detail[data-trip-id]');
+    if (!detailEl) {
+        return;
+    }
+
+    const tripId = detailEl.dataset.tripId;
+    const loadingEl = document.getElementById('schedules-loading');
+    const errorEl = document.getElementById('schedules-error');
+    const emptyEl = document.getElementById('schedules-empty');
+    const listEl = document.getElementById('schedules-list');
+    const templateEl = document.getElementById('schedule-card-template');
+    const monthButtons = document.querySelectorAll('.month-badge[data-month]');
+
+    if (!loadingEl || !errorEl || !emptyEl || !listEl || !templateEl) {
+        return;
+    }
+
+    const renderSchedules = (schedules) => {
+        listEl.replaceChildren();
+
+        const fragment = document.createDocumentFragment();
+
+        schedules.forEach((schedule) => {
+            const card = templateEl.content.cloneNode(true);
+
+            card.querySelector('[data-field="departure-time"]').textContent = schedule.departureTime;
+            card.querySelector('[data-field="arrival-time"]').textContent = schedule.arrivalTime;
+
+            const daysEl = card.querySelector('[data-field="days"]');
+            (schedule.daysOfWeek || []).forEach((day) => {
+                const dayEl = document.createElement('span');
+                dayEl.className = 'day-badge';
+                dayEl.textContent = day;
+                daysEl.appendChild(dayEl);
+            });
+
+            card.querySelector('[data-field="book-link"]').href = `/trips/booking/${schedule.id}`;
+
+            fragment.appendChild(card);
+        });
+
+        listEl.appendChild(fragment);
+    };
+
+    const loadSchedules = async (month) => {
+        loadingEl.hidden = false;
+        errorEl.hidden = true;
+        emptyEl.hidden = true;
+        listEl.replaceChildren();
+
+        try {
+            const url = month === undefined
+                ? `/api/trips/${encodeURIComponent(tripId)}/schedules`
+                : `/api/trips/${encodeURIComponent(tripId)}/schedules?month=${encodeURIComponent(month)}`;
+
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Failed to load schedules (${response.status})`);
+            }
+
+            const schedules = await response.json();
+
+            loadingEl.hidden = true;
+
+            if (Array.isArray(schedules) && schedules.length === 0) {
+                emptyEl.hidden = false;
+            } else {
+                renderSchedules(schedules);
+            }
+        } catch (error) {
+            loadingEl.hidden = true;
+            emptyEl.hidden = true;
+            errorEl.hidden = false;
+            console.error('Error loading schedules:', error);
+        }
+    };
+
+    monthButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            monthButtons.forEach((otherButton) => {
+                otherButton.setAttribute('aria-pressed', 'false');
+            });
+            button.setAttribute('aria-pressed', 'true');
+
+            loadSchedules(button.dataset.month);
+        });
+    });
+
+    loadSchedules();
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     hookRegionSorter();
     hookSeasonSorter();
     hookTrainsCatalog();
+    hookScheduleHydration();
 });
