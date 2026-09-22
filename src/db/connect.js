@@ -16,13 +16,14 @@ const connectToDb = async (options = {}) => {
     throw new Error('MONGODB_URI is required.');
   }
 
-  // Connect native client
+  // Mongoose maintains its own connection alongside the native driver so both old and new data-access code keep working.
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect(connectionString, { dbName: databaseName });
+  }
+
   client = new MongoClient(connectionString);
   await client.connect();
   database = client.db(databaseName);
-
-  // Connect Mongoose
-  await mongoose.connect(connectionString, { dbName: databaseName });
 
   return database;
 };
@@ -39,6 +40,10 @@ const closeDb = async () => {
     await client.close();
     client = undefined;
     database = undefined;
+  }
+
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
   }
 };
 
