@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import pkg from './package.json' with { type: 'json' };
 import globalMiddleware from './src/middleware/global.js';
 import routes from './src/routes/router.js';
+import { swaggerUi, swaggerSpec } from './src/middleware/swagger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = Path.dirname(__filename);
@@ -20,6 +21,9 @@ app.use((req, res, next) => {
 app.use(express.static(Path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', Path.join(__dirname, 'src/views'));
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Parse JSON and URL-encoded request bodies.
 app.use(express.json({ limit: '10mb' }));
