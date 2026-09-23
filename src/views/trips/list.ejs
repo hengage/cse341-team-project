@@ -14,7 +14,7 @@
 </div>
 
 <div class="routes-grid" id="routes-grid">
-    <p>Loading trips...</p>
+    <!-- Content will be populated by JavaScript -->
 </div>
 
 <template id="route-card-template">
@@ -70,11 +70,13 @@
     async function fetchTrips() {
         try {
             const response = await fetch('/api/trips');
-            if (!response.ok) throw new Error('Failed to fetch trips');
+            if (!response.ok) {
+                throw new Error('Failed to fetch trips');
+            }
             const trips = await response.json();
             renderTrips(trips);
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error fetching trips:', error);
             document.getElementById('routes-grid').innerHTML = '<p>Error loading trips. Please try again later.</p>';
         }
     }
@@ -87,31 +89,52 @@
         trips.forEach(trip => {
             const clone = template.content.cloneNode(true);
             
+            // Add ID for potential debugging
             const card = clone.querySelector('.route-card');
-            card.classList.add(trip.region);
+            if (card) {
+                card.classList.add(trip.region);
+            }
 
-            clone.querySelector('.route-name').textContent = trip.name;
-            clone.querySelector('.route-region').textContent = trip.region;
+            const routeName = clone.querySelector('.route-name');
+            if (routeName) routeName.textContent = trip.name;
             
-            const stations = clone.querySelectorAll('.station-name');
-            stations[0].textContent = trip.startStation;
-            stations[1].textContent = trip.endStation;
+            const routeRegion = clone.querySelector('.route-region');
+            if (routeRegion) routeRegion.textContent = trip.region;
             
-            clone.querySelector('.duration').textContent = trip.duration;
-            clone.querySelector('.distance').textContent = trip.distance;
-            clone.querySelector('.best-season').textContent = trip.bestSeason;
-            clone.querySelector('.season-badge').classList.add('season-' + trip.bestSeason);
-            clone.querySelector('.route-description').textContent = trip.description;
+            const stationNames = clone.querySelectorAll('.station-name');
+            if (stationNames.length >= 2) {
+                stationNames[0].textContent = trip.startStation;
+                stationNames[1].textContent = trip.endStation;
+            }
+            
+            const duration = clone.querySelector('.duration');
+            if (duration) duration.textContent = trip.duration;
+            
+            const distance = clone.querySelector('.distance');
+            if (distance) distance.textContent = trip.distance;
+            
+            const bestSeason = clone.querySelector('.best-season');
+            if (bestSeason) bestSeason.textContent = trip.bestSeason;
+            
+            const seasonBadge = clone.querySelector('.season-badge');
+            if (seasonBadge) seasonBadge.classList.add('season-' + trip.bestSeason);
+            
+            const description = clone.querySelector('.route-description');
+            if (description) description.textContent = trip.description;
             
             const highlightsList = clone.querySelector('.highlights-list');
-            trip.highlights.forEach(h => {
-                const tag = document.createElement('span');
-                tag.className = 'highlight-tag';
-                tag.textContent = h;
-                highlightsList.appendChild(tag);
-            });
+            if (highlightsList && trip.highlights) {
+                trip.highlights.forEach(h => {
+                    const tag = document.createElement('span');
+                    tag.className = 'highlight-tag';
+                    tag.textContent = h;
+                    highlightsList.appendChild(tag);
+                });
+            }
             
-            clone.querySelector('.view-details-btn').href = `/trips/${trip.id}`;
+            const viewDetailsBtn = clone.querySelector('.view-details-btn');
+            if (viewDetailsBtn) viewDetailsBtn.href = `/trips/${trip.id}`;
+            
             grid.appendChild(clone);
         });
     }

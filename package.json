@@ -4,7 +4,7 @@
 		"ejs": "^6.0.1",
 		"express": "^5.1.0",
 		"mongodb": "^7.5.0",
-		"mongoose": "^8.0.0",
+		"mongoose": "^9.10.1",
 		"swagger-jsdoc": "^6.3.0",
 		"swagger-ui-express": "^5.0.1"
 	},
@@ -12,7 +12,7 @@
 		"db:import": "node --env-file=.env src/db/import.js",
 		"dev": "nodemon --env-file=.env server.js",
 		"reset": "node restore.js 3000 3001",
-		"start": "node --env-file=.env server.js",
+		"start": "node server.js",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"lint": "eslint .",

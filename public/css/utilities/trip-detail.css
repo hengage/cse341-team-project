@@ -177,6 +177,13 @@ article.route-detail {
                     font-weight: 500;
                     min-width: 48px;
                     text-align: center;
+                    box-shadow: none;
+
+                    &[aria-pressed="true"] {
+                        background-color: var(--clr-primary);
+                        border-color: var(--clr-primary);
+                        color: var(--clr-text-alt-primary);
+                    }
                 }
             }
         }
