@@ -160,5 +160,27 @@
             12
         ],
         "imageUrl": "/images/routes/romantic-gorge.png"
+    },
+    {
+        "id": "test-trip",
+        "name": "Test Trip",
+        "description": "A test trip to verify adding data.",
+        "region": "central",
+        "startStation": "tokyo",
+        "endStation": "osaka",
+        "duration": "3 hours",
+        "distance": 500,
+        "highlights": [
+            "Test highlight 1",
+            "Test highlight 2"
+        ],
+        "bestSeason": "spring",
+        "operatingMonths": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "imageUrl": "/images/routes/test-trip.png"
     }
 ]

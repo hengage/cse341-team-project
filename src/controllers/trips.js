@@ -26,3 +26,12 @@ export const getTripsPage = async (req, res) => {
     title: 'Scenic Train Trips'
   });
 };
+
+export const getTripDetailsPage = async (req, res) => {
+  const { tripId } = req.params;
+  const trip = await tripModel.getTripById(tripId);
+  res.render('trips/details', {
+    title: 'Trip Details',
+    details: trip
+  });
+};

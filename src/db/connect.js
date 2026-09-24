@@ -24,7 +24,7 @@ const connectToDb = async (options = {}) => {
   client = new MongoClient(connectionString);
   await client.connect();
   database = client.db(databaseName);
-
+  
   return database;
 };
 
