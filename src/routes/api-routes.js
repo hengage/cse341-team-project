@@ -1,6 +1,7 @@
 import express from 'express';
 import * as tripController from '../controllers/trips.js';
 import { getSchedulesForTrip, getSchedulesForTripAndMonth } from '../controllers/schedules.js';
+import * as bookingController from '../controllers/bookings.js';
 
 const router = express.Router();
 
@@ -70,6 +71,40 @@ const router = express.Router();
  *           example: [monday, tuesday, wednesday, thursday, friday]
  *         status:
  *           type: boolean
+ *     Booking:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: 1
+ *         createdAt:
+ *           type: string
+ *           example: "2024-06-01T12:00:00Z"
+ *         ticketClass:
+ *           type: string
+ *           example: economy
+ *         selectedDay:
+ *           type: string
+ *           example: "2024-06-15"
+ *         passengers:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Passenger'
+ *     Passenger:
+ *       type: object
+ *       properties:
+ *         firstName:
+ *           type: string
+ *           example: John
+ *         lastName:
+ *           type: string
+ *           example: Doe
+ *         email:
+ *           type: string
+ *           example: john.doe@example.com
+ *         phone:
+ *           type: string
+ *           example: "+1234567890"
  */
 
 /**
@@ -162,5 +197,25 @@ router.get('/trips/:id/schedules', (req, res) => {
 
     return getSchedulesForTripAndMonth(req, res);
 });
+
+/**
+ * @swagger
+ * /api/bookings:
+ *   get:
+ *     summary: Get all bookings
+ *     tags: [Bookings]
+ *     responses:
+ *       200:
+ *         description: An array of bookings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Booking'
+ *       500:
+ *         description: Server error
+ */
+router.get('/bookings', bookingController.getAllBookingsHandler);
 
 export default router;

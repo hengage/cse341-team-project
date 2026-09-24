@@ -1,0 +1,38 @@
+<%- include('./partials/header') %>
+
+<h1 class="confirmation-title"><%= title %></h1>
+
+<div id="bookings-list"></div>
+
+<template id="booking-card-template">
+    <article class="booking-card">
+        <div id="booking-reference">
+            <p>Booking Reference:</p>
+        </div>
+
+        <div id="ticket-class">
+            <p>Ticket Class:</p>
+        </div>
+
+        <div id="selected-day">
+            <p>Selected Day:</p>
+        </div>
+
+        <div id="booked-on">
+            <p>Booked On:</p>
+        </div>
+
+        <div id="passengers">
+            <p>Passengers:</p>
+        </div>
+    </article>
+</template>
+
+<template id="passenger-card-template">
+    <article class="passenger-card">
+        <p id="passenger-name">Passenger Name: </p>
+        <p id="passenger-email">Passenger Email: </p>
+        <p id="passenger-phone">Passenger Phone: </p>
+    </article>
+</template>
+<%- include('./partials/footer') %>
