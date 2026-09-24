@@ -82,7 +82,29 @@
             <div class="schedules-state schedules-error" id="schedules-error" hidden>Unable to load schedules.</div>
             <div class="schedules-state schedules-empty" id="schedules-empty" hidden>No schedules available for this month.</div>
 
-            <div class="schedules-grid" id="schedules-list"></div>
+            <div class="schedules-grid" id="schedules-list">
+                <% schedules.forEach(function(schedule) { %>
+                <div class="schedule-card">
+                    <div class="schedule-times">
+                        <div class="time-block">
+                            <span class="time-label">Departs</span>
+                            <span class="time-value"><%= schedule.departureTime %></span>
+                        </div>
+                        <span class="time-arrow">→</span>
+                        <div class="time-block">
+                            <span class="time-label">Arrives</span>
+                            <span class="time-value"><%= schedule.arrivalTime %></span>
+                        </div>
+                    </div>
+                    <div class="schedule-days">
+                        <% (schedule.daysOfWeek || []).forEach(function(day) { %>
+                        <span class="day-badge"><%= day %></span>
+                        <% }); %>
+                    </div>
+                    <a href="/trips/booking/<%= schedule.id %>" class="book-btn">Book Now</a>
+                </div>
+                <% }); %>
+            </div>
 
             <template id="schedule-card-template">
                 <div class="schedule-card">

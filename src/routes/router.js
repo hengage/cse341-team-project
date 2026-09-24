@@ -2,7 +2,7 @@ import railTripsRouter from './trips.js';
 import { trainsApi, trainsPage } from './trains.js';
 import { Router } from 'express';
 import { homePage, aboutPage, testErrorPage } from './index.js';
-import apiRouter from './api/api-routes.js';
+import apiRouter from './api-routes.js';
 import ejsRoutes from './ejs-routes.js';
 
 const router = Router();

@@ -1,4 +1,5 @@
 import * as tripModel from '../models/trips.js';
+import { getSchedulesByTripId } from '../models/schedules.js';
 
 export const getAllTrips = async (req, res) => {
   try {
@@ -30,8 +31,10 @@ export const getTripsPage = async (req, res) => {
 export const getTripDetailsPage = async (req, res) => {
   const { tripId } = req.params;
   const trip = await tripModel.getTripById(tripId);
+  const schedules = await getSchedulesByTripId(tripId);
   res.render('trips/details', {
     title: 'Trip Details',
-    details: trip
+    details: trip,
+    schedules
   });
 };
