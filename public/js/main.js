@@ -88,6 +88,50 @@ const hookTrainsCatalog = async () => {
     }
 };
 
+const hookBookingsHydration = async () => {
+    const listEl = document.getElementById('bookings-list');
+    const templateEl = document.getElementById('booking-card-template');
+    const passengerTemplateEl = document.getElementById('passenger-card-template');
+    if (!listEl || !templateEl || !passengerTemplateEl) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/bookings');
+        if (!response.ok) {
+            throw new Error(`Failed to load bookings (${response.status})`);
+        }
+
+        const payload = await response.json();
+        const bookings = payload || [];
+        const fragment = document.createDocumentFragment();
+
+        bookings.forEach((booking) => {
+            const card = templateEl.content.cloneNode(true);
+
+            card.querySelector('#booking-reference p').textContent = `Booking Reference: ${booking.id}`;
+            card.querySelector('#ticket-class p').textContent = `Ticket Class: ${booking.ticketClass}`;
+            card.querySelector('#selected-day p').textContent = `Selected Day: ${booking.selectedDay}`;
+            card.querySelector('#booked-on p').textContent = `Booked On: ${booking.createdAt}`;
+
+            const passengersEl = card.querySelector('#passengers');
+            (booking.passengers || []).forEach((passenger) => {
+                const passengerCard = passengerTemplateEl.content.cloneNode(true);
+                passengerCard.querySelector('#passenger-name').textContent = `Passenger Name: ${passenger.firstName} ${passenger.lastName}`;
+                passengerCard.querySelector('#passenger-email').textContent = `Passenger Email: ${passenger.email}`;
+                passengerCard.querySelector('#passenger-phone').textContent = `Passenger Phone: ${passenger.phone}`;
+                passengersEl.appendChild(passengerCard);
+            });
+
+            fragment.appendChild(card);
+        });
+        listEl.appendChild(fragment);
+    } catch (error) {
+        console.error(error);
+        return;
+    }
+};
+
 const hookScheduleHydration = () => {
     const detailEl = document.querySelector('.route-detail[data-trip-id]');
     if (!detailEl) {
@@ -184,5 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
     hookRegionSorter();
     hookSeasonSorter();
     hookTrainsCatalog();
+    hookBookingsHydration();
     hookScheduleHydration();
 });

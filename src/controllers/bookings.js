@@ -1,5 +1,15 @@
+import { createBooking, getAllBookings } from '../models/bookings.js';
 import { getDb } from '../db/connect.js';
 import { generateConfirmationCode } from '../includes/helpers.js';
+
+const getAllBookingsHandler = async (req, res) => {
+    try {
+        const bookings = await getAllBookings();
+        return res.status(200).json(bookings);
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
 
 const bookingPage = async (req, res) => {
     const { scheduleId } = req.params;
@@ -24,14 +34,26 @@ const bookingPage = async (req, res) => {
 };
 
 const processBookingRequest = async (req, res) => {
-    const confirmation = {
+    const booking = {
         id: generateConfirmationCode(),
         createdAt: new Date().toISOString(),
         ...req.body
     };
-    await getDb().collection('confirmations').insertOne(confirmation);
+    await createBooking(booking);
 
-    res.redirect(`/trips/confirmation/${confirmation.id}`);
+    res.redirect(`/trips/confirmation/${booking.id}`);
 };
 
-export { bookingPage, processBookingRequest };
+const bookingsAdminPage = async (req, res) => {
+    try {
+        const bookings = await getAllBookings();
+        return res.render('bookings', {
+            title: 'All Bookings',
+            bookings
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+export { bookingPage, processBookingRequest, getAllBookingsHandler, bookingsAdminPage };
