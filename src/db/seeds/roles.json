@@ -1,0 +1,10 @@
+[
+    {
+        "name": "user",
+        "description": "Standard authenticated Kizuna Rail customer"
+    },
+    {
+        "name": "admin",
+        "description": "Authorized application administrator"
+    }
+]
