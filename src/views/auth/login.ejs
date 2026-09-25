@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+
+<article class="auth-page">
+    <div class="auth-header">
+        <h1>Log In</h1>
+        <p>Sign in to continue your Kizuna Rail journey.</p>
+    </div>
+
+    <% if (errors && errors.length > 0) { %>
+    <div class="auth-errors" role="alert">
+        <% errors.forEach(function(error) { %>
+        <p><%= error %></p>
+        <% }); %>
+    </div>
+    <% } %>
+
+    <form class="auth-form" method="POST" action="/auth/login">
+        <div class="auth-field">
+            <label for="identifier">Username or email</label>
+            <input id="identifier" name="identifier" type="text" value="<%= formData.identifier || '' %>" autocomplete="username" required>
+        </div>
+
+        <div class="auth-field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+</article>
+
+<%- include('../partials/footer') %>

@@ -2,6 +2,8 @@ import { afterAll, beforeAll, beforeEach, inject } from 'vitest';
 import { closeDb, connectToDb, getDb } from '../src/db/connect.js';
 import { initializeDatabase } from '../src/db/initialize.js';
 
+process.env.NODE_ENV = 'test';
+
 const connectionString = inject('MONGODB_TEST_URI');
 
 beforeAll(async () => {
