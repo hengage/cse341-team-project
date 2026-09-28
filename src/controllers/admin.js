@@ -8,7 +8,8 @@ export const getTripAdminPage = async (req, res) => {
 
 export const updateTrip = async (req, res) => {
   try {
-    const updatedTrip = await tripModel.updateTrip(req.params.id, req.body);
+    const { id } = req.params;
+    const updatedTrip = await tripModel.updateTrip(id, req.body);
     if (!updatedTrip) {
       return res.status(404).json({ message: 'Trip not found' });
     }
