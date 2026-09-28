@@ -29,11 +29,21 @@
             const clone = template.content.cloneNode(true);
             clone.querySelector('.route-name').textContent = trip.name;
             
+            // Delete functionality
             clone.querySelector('.delete-btn').onclick = async () => {
-                if(confirm('Are you sure?')) {
-                    await fetch(`/api/admin/trips/${trip.id}`, { method: 'DELETE' });
-                    fetchTrips(); // Refresh
+                if(confirm('Are you sure you want to delete this trip?')) {
+                    const response = await fetch(`/api/admin/trips/${trip.id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        fetchTrips(); // Refresh the list
+                    } else {
+                        alert('Failed to delete trip');
+                    }
                 }
+            };
+            
+            // Edit functionality (placeholder - could trigger a modal or form)
+            clone.querySelector('.edit-btn').onclick = () => {
+                alert('Edit functionality would be implemented here with a form.');
             };
             
             grid.appendChild(clone);
