@@ -8,8 +8,11 @@ export const getTripAdminPage = async (req, res) => {
 
 export const updateTrip = async (req, res) => {
   try {
-    // Logic to update trip
-    res.json({ message: 'Trip updated' });
+    const updatedTrip = await tripModel.updateTrip(req.params.id, req.body);
+    if (!updatedTrip) {
+      return res.status(404).json({ message: 'Trip not found' });
+    }
+    res.json(updatedTrip);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -17,7 +20,10 @@ export const updateTrip = async (req, res) => {
 
 export const deleteTrip = async (req, res) => {
   try {
-    // Logic to delete trip
+    const deletedTrip = await tripModel.deleteTrip(req.params.id);
+    if (!deletedTrip) {
+      return res.status(404).json({ message: 'Trip not found' });
+    }
     res.json({ message: 'Trip deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
