@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+<h1><%= title %></h1>
+
+<div class="routes-grid" id="admin-routes-grid">
+    <p>Loading trips...</p>
+</div>
+
+<template id="trip-admin-template">
+    <div class="route-card">
+        <h2 class="route-name"></h2>
+        <div class="admin-actions">
+            <button class="edit-btn">Edit</button>
+            <button class="delete-btn">Delete</button>
+        </div>
+        <div class="edit-form" style="display:none;">
+            <input type="text" class="edit-name" placeholder="Name">
+            <button class="save-btn">Save</button>
+            <button class="cancel-btn">Cancel</button>
+        </div>
+    </div>
+</template>
+
+<script>
+    async function fetchTrips() {
+        const response = await fetch('/api/trips');
+        const trips = await response.json();
+        renderTrips(trips);
+    }
+
+    function renderTrips(trips) {
+        const grid = document.getElementById('admin-routes-grid');
+        grid.innerHTML = '';
+        const template = document.getElementById('trip-admin-template');
+
+        trips.forEach(trip => {
+            const clone = template.content.cloneNode(true);
+            clone.querySelector('.route-name').textContent = trip.name;
+            
+            const card = clone.querySelector('.route-card');
+            const editForm = clone.querySelector('.edit-form');
+            
+            clone.querySelector('.delete-btn').onclick = async () => {
+                if(confirm('Are you sure?')) {
+                    await fetch(`/api/admin/trips/${trip.id}`, { method: 'DELETE' });
+                    fetchTrips();
+                }
+            };
+            
+            clone.querySelector('.edit-btn').onclick = () => {
+                card.style.display = 'none';
+                editForm.style.display = 'block';
+                editForm.querySelector('.edit-name').value = trip.name;
+            };
+
+            editForm.querySelector('.save-btn').onclick = async () => {
+                const newName = editForm.querySelector('.edit-name').value;
+                await fetch(`/api/admin/trips/${trip.id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ name: newName })
+                });
+                fetchTrips();
+            };
+
+            editForm.querySelector('.cancel-btn').onclick = () => {
+                card.style.display = 'block';
+                editForm.style.display = 'none';
+            };
+            
+            grid.appendChild(clone);
+        });
+    }
+
+    fetchTrips();
+</script>
+
+<%- include('../partials/footer') %>
