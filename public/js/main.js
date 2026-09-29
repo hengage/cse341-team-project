@@ -167,7 +167,7 @@ const hookUsersHydration = async () => {
                 throw new Error(`Failed to load users (${response.status})`);
             }
             const payload = await response.json();
-            if (payload.type !== 'array') {
+            if (!Array.isArray(payload)) {
                 return [payload];
             }
             return payload || [];
