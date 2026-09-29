@@ -1,0 +1,54 @@
+<%- include('../partials/header') %>
+
+<article class="users-page">
+    <h1>Welcome to the Users Management page, <%= name %></h1>
+    <div id="users-list"></div>
+</article>
+
+
+<template id="user-card-template" >
+    <div class="user-card" data-user-id="">
+        <p id="user-id">Id</p>
+        <p id="user-display-name">display name</p>
+        <p id="user-username">username</p>
+        <p id="user-email">email</p>
+        <p id="user-role">role</p>
+        <button type="button" data-action="update">Update</button>
+        <button type="button" data-action="delete">Delete</button>
+        
+    </div>
+</template>
+
+<template id="user-update-template">
+    <form id="update-form" data-user-id="">
+        <label>Update Display Name
+            <input type="text" id="update-display-name" name="update-display-name" placeholder="Update Display Name">
+        </label>
+
+        <label>Update Username
+            <input type="text" id="update-username" name="update-username" placeholder="Update Username">
+        </label>
+
+        <label>Update Email
+            <input type="email" id="update-email" name="update-email" placeholder="Update Email">
+        </label>
+
+        <div id="update-role-container">
+            <p>Update Role</p>
+            <label>
+                <span>Admin</span>
+                <input type="radio" id="update-role" name="update-role" value="admin"> 
+            </label>
+
+            <label>
+                <span>User</span>
+                <input type="radio" id="update-role" name="update-role" value="user"> 
+            </label>
+        </div>
+
+        <button type="submit">Update</button>
+        <button type="button" data-action="cancel">Cancel</button>
+    </form>
+</template>
+
+<%- include('../partials/footer') %>
