@@ -34,9 +34,9 @@
 
         trips.forEach(trip => {
             const clone = template.content.cloneNode(true);
-            clone.querySelector('.route-name').textContent = trip.name;
-            
             const card = clone.querySelector('.route-card');
+            
+            card.querySelector('.route-name').textContent = trip.name;
             const editForm = clone.querySelector('.edit-form');
             
             clone.querySelector('.delete-btn').onclick = async () => {
@@ -47,7 +47,8 @@
             };
             
             clone.querySelector('.edit-btn').onclick = () => {
-                card.style.display = 'none';
+                card.querySelector('.admin-actions').style.display = 'none';
+                card.querySelector('.route-name').style.display = 'none';
                 editForm.style.display = 'block';
                 editForm.querySelector('.edit-name').value = trip.name;
             };
@@ -63,7 +64,8 @@
             };
 
             editForm.querySelector('.cancel-btn').onclick = () => {
-                card.style.display = 'block';
+                card.querySelector('.admin-actions').style.display = 'block';
+                card.querySelector('.route-name').style.display = 'block';
                 editForm.style.display = 'none';
             };
             
