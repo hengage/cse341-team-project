@@ -2,6 +2,31 @@
 
 <h1 class="confirmation-title"><%= title %></h1>
 
+<form id="booking-filters">
+    <label for="booking-ticket-class">
+        Ticket class
+        <select id="booking-ticket-class" name="ticketClass">
+            <option value="">All ticket classes</option>
+            <option value="standard">Standard</option>
+            <option value="premium">Premium</option>
+            <option value="first">First</option>
+        </select>
+    </label>
+
+    <label for="booking-start-date">
+        Start date
+        <input id="booking-start-date" name="startDate" type="date">
+    </label>
+
+    <label for="booking-end-date">
+        End date
+        <input id="booking-end-date" name="endDate" type="date">
+    </label>
+
+    <button type="submit">Apply Filters</button>
+    <button id="booking-clear-filters" type="button">Clear Filters</button>
+</form>
+
 <p id="bookings-loading" role="status">Loading bookings...</p>
 <p id="bookings-error" role="alert" hidden></p>
 <p id="bookings-empty" hidden>No bookings found.</p>

@@ -237,9 +237,32 @@ router.get('/trips/:id/schedules', (req, res) => {
  *           maximum: 50
  *           default: 10
  *         description: Number of bookings per page. Defaults to 10; maximum is 50.
+ *       - in: query
+ *         name: ticketClass
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [standard, premium, first]
+ *         description: Filter by exact ticket class.
+ *       - in: query
+ *         name: startDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: '2026-10-01'
+ *         description: Include bookings created at or after 00:00 UTC on this date (createdAt).
+ *       - in: query
+ *         name: endDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: '2026-10-02'
+ *         description: Include bookings through this date in UTC (createdAt).
  *     responses:
  *       200:
- *         description: A page of bookings sorted by booking date, newest first.
+ *         description: A page of bookings matching the active filters, sorted newest first by createdAt.
  *         content:
  *           application/json:
  *             schema:
@@ -251,8 +274,26 @@ router.get('/trips/:id/schedules', (req, res) => {
  *                     $ref: '#/components/schemas/Booking'
  *                 pagination:
  *                   $ref: '#/components/schemas/BookingPagination'
+ *                 filters:
+ *                   type: object
+ *                   properties:
+ *                     ticketClass:
+ *                       type: string
+ *                       nullable: true
+ *                       enum: [standard, premium, first]
+ *                       example: standard
+ *                     startDate:
+ *                       type: string
+ *                       nullable: true
+ *                       format: date
+ *                       example: '2026-10-01'
+ *                     endDate:
+ *                       type: string
+ *                       nullable: true
+ *                       format: date
+ *                       example: '2026-10-02'
  *       400:
- *         description: Invalid page or limit query parameter
+ *         description: Invalid pagination or filter query parameter, malformed date, impossible date, or startDate later than endDate
  *       500:
  *         description: Server error
  */
