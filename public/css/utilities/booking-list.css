@@ -4,6 +4,28 @@
     gap: 1rem;
 }
 
+#bookings-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+#bookings-pagination[hidden] {
+    display: none;
+}
+
+#bookings-pagination button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+#bookings-pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
 article.booking-card {
         border: 1px solid black;
         padding: 1rem;
