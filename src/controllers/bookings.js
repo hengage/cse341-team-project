@@ -1,11 +1,40 @@
-import { createBooking, getAllBookings } from '../models/bookings.js';
+import { createBooking, getPaginatedBookings } from '../models/bookings.js';
 import { getDb } from '../db/connect.js';
 import { generateConfirmationCode } from '../includes/helpers.js';
 
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;
+
+const parsePositiveInteger = (value) => {
+    if (typeof value !== 'string' || !/^\d+$/.test(value)) {
+        return null;
+    }
+
+    const parsedValue = Number(value);
+    return Number.isSafeInteger(parsedValue) && parsedValue > 0 ? parsedValue : null;
+};
+
 const getAllBookingsHandler = async (req, res) => {
     try {
-        const bookings = await getAllBookings();
-        return res.status(200).json(bookings);
+        const page = req.query.page === undefined
+            ? DEFAULT_PAGE
+            : parsePositiveInteger(req.query.page);
+        if (page === null) {
+            return res.status(400).json({ error: 'page must be a positive integer.' });
+        }
+
+        const limit = req.query.limit === undefined
+            ? DEFAULT_LIMIT
+            : parsePositiveInteger(req.query.limit);
+        if (limit === null || limit > MAX_LIMIT) {
+            return res.status(400).json({
+                error: `limit must be a positive integer no greater than ${MAX_LIMIT}.`
+            });
+        }
+
+        const result = await getPaginatedBookings({ page, limit });
+        return res.status(200).json(result);
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
@@ -44,16 +73,10 @@ const processBookingRequest = async (req, res) => {
     res.redirect(`/trips/confirmation/${booking.id}`);
 };
 
-const bookingsAdminPage = async (req, res) => {
-    try {
-        const bookings = await getAllBookings();
-        return res.render('bookings', {
-            title: 'All Bookings',
-            bookings
-        });
-    } catch (error) {
-        return res.status(500).json({ error: error.message });
-    }
+const bookingsAdminPage = (req, res) => {
+    return res.render('bookings', {
+        title: 'All Bookings'
+    });
 };
 
 export { bookingPage, processBookingRequest, getAllBookingsHandler, bookingsAdminPage };

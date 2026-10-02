@@ -92,44 +92,97 @@ const hookBookingsHydration = async () => {
     const listEl = document.getElementById('bookings-list');
     const templateEl = document.getElementById('booking-card-template');
     const passengerTemplateEl = document.getElementById('passenger-card-template');
-    if (!listEl || !templateEl || !passengerTemplateEl) {
+    const loadingEl = document.getElementById('bookings-loading');
+    const errorEl = document.getElementById('bookings-error');
+    const emptyEl = document.getElementById('bookings-empty');
+    const paginationEl = document.getElementById('bookings-pagination');
+    const pageInfoEl = document.getElementById('bookings-page-info');
+    const previousButton = document.getElementById('bookings-previous');
+    const nextButton = document.getElementById('bookings-next');
+
+    if (!listEl || !templateEl || !passengerTemplateEl || !loadingEl || !errorEl || !emptyEl
+        || !paginationEl || !pageInfoEl || !previousButton || !nextButton) {
         return;
     }
 
-    try {
-        const response = await fetch('/api/bookings');
-        if (!response.ok) {
-            throw new Error(`Failed to load bookings (${response.status})`);
-        }
+    let currentPage = 1;
 
-        const payload = await response.json();
-        const bookings = payload || [];
-        const fragment = document.createDocumentFragment();
+    const updatePagination = (pagination) => {
+        pageInfoEl.textContent = pagination.totalItems === 0
+            ? 'No bookings'
+            : `Page ${pagination.page} of ${pagination.totalPages} (${pagination.totalItems} bookings)`;
+        previousButton.disabled = !pagination.hasPreviousPage;
+        nextButton.disabled = !pagination.hasNextPage;
+        paginationEl.hidden = false;
+    };
 
-        bookings.forEach((booking) => {
-            const card = templateEl.content.cloneNode(true);
+    const loadPage = async (page) => {
+        loadingEl.hidden = false;
+        errorEl.hidden = true;
+        emptyEl.hidden = true;
+        paginationEl.hidden = true;
+        listEl.replaceChildren();
+        previousButton.disabled = true;
+        nextButton.disabled = true;
 
-            card.querySelector('#booking-reference p').textContent = `Booking Reference: ${booking.id}`;
-            card.querySelector('#ticket-class p').textContent = `Ticket Class: ${booking.ticketClass}`;
-            card.querySelector('#selected-day p').textContent = `Selected Day: ${booking.selectedDay}`;
-            card.querySelector('#booked-on p').textContent = `Booked On: ${booking.createdAt}`;
+        try {
+            const response = await fetch(`/api/bookings?page=${page}&limit=10`);
+            if (!response.ok) {
+                throw new Error(`Failed to load bookings (${response.status})`);
+            }
 
-            const passengersEl = card.querySelector('#passengers');
-            (booking.passengers || []).forEach((passenger) => {
-                const passengerCard = passengerTemplateEl.content.cloneNode(true);
-                passengerCard.querySelector('#passenger-name').textContent = `Passenger Name: ${passenger.firstName} ${passenger.lastName}`;
-                passengerCard.querySelector('#passenger-email').textContent = `Passenger Email: ${passenger.email}`;
-                passengerCard.querySelector('#passenger-phone').textContent = `Passenger Phone: ${passenger.phone}`;
-                passengersEl.appendChild(passengerCard);
+            const payload = await response.json();
+            if (!Array.isArray(payload.bookings) || !payload.pagination) {
+                throw new Error('Invalid bookings response');
+            }
+
+            const fragment = document.createDocumentFragment();
+            payload.bookings.forEach((booking) => {
+                const card = templateEl.content.cloneNode(true);
+
+                card.querySelector('#booking-reference p').textContent = `Booking Reference: ${booking.id}`;
+                card.querySelector('#ticket-class p').textContent = `Ticket Class: ${booking.ticketClass}`;
+                card.querySelector('#selected-day p').textContent = `Selected Day: ${booking.selectedDay}`;
+                card.querySelector('#booked-on p').textContent = `Booked On: ${booking.createdAt}`;
+
+                const passengersEl = card.querySelector('#passengers');
+                (booking.passengers || []).forEach((passenger) => {
+                    const passengerCard = passengerTemplateEl.content.cloneNode(true);
+                    passengerCard.querySelector('#passenger-name').textContent = `Passenger Name: ${passenger.firstName} ${passenger.lastName}`;
+                    passengerCard.querySelector('#passenger-email').textContent = `Passenger Email: ${passenger.email}`;
+                    passengerCard.querySelector('#passenger-phone').textContent = `Passenger Phone: ${passenger.phone}`;
+                    passengersEl.appendChild(passengerCard);
+                });
+
+                fragment.appendChild(card);
             });
 
-            fragment.appendChild(card);
-        });
-        listEl.appendChild(fragment);
-    } catch (error) {
-        console.error(error);
-        return;
-    }
+            listEl.replaceChildren(fragment);
+            currentPage = payload.pagination.page;
+            loadingEl.hidden = true;
+            emptyEl.hidden = payload.bookings.length > 0;
+            updatePagination(payload.pagination);
+        } catch (error) {
+            loadingEl.hidden = true;
+            errorEl.textContent = 'Unable to load bookings right now. Please try again in a moment.';
+            errorEl.hidden = false;
+            console.error(error);
+        }
+    };
+
+    previousButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            loadPage(currentPage - 1);
+        }
+    });
+
+    nextButton.addEventListener('click', () => {
+        if (!nextButton.disabled) {
+            loadPage(currentPage + 1);
+        }
+    });
+
+    loadPage(currentPage);
 };
 
 const hookScheduleHydration = () => {

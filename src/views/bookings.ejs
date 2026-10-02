@@ -2,7 +2,15 @@
 
 <h1 class="confirmation-title"><%= title %></h1>
 
+<p id="bookings-loading" role="status">Loading bookings...</p>
+<p id="bookings-error" role="alert" hidden></p>
+<p id="bookings-empty" hidden>No bookings found.</p>
 <div id="bookings-list"></div>
+<nav id="bookings-pagination" aria-label="Booking pages" hidden>
+    <button id="bookings-previous" type="button" disabled>Previous</button>
+    <p id="bookings-page-info" aria-live="polite"></p>
+    <button id="bookings-next" type="button" disabled>Next</button>
+</nav>
 
 <template id="booking-card-template">
     <article class="booking-card">
