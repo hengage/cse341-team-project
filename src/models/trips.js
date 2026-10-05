@@ -1,7 +1,12 @@
 import Trip from './schemas/trips.js';
 
-export const getAllTrips = async () => {
-  return await Trip.find({});
+export const getPaginatedTrips = async (page, limit) => {
+  const skip = (page - 1) * limit;
+  const [trips, totalItems] = await Promise.all([
+    Trip.find({}).skip(skip).limit(limit),
+    Trip.countDocuments({})
+  ]);
+  return { trips, totalItems };
 };
 
 export const getTripById = async (id) => {

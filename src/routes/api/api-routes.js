@@ -7,12 +7,24 @@ const router = express.Router();
  * @swagger
  * /api/trips:
  *   get:
- *     summary: Retrieve a list of all trips
+ *     summary: Retrieve a paginated list of trips
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *           maximum: 50
  *     responses:
  *       200:
- *         description: A list of trips
+ *         description: A paginated list of trips
  */
-router.get('/trips', tripController.getAllTrips);
+router.get('/trips', tripController.getTrips);
 
 /**
  * @swagger
