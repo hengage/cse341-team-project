@@ -52,6 +52,12 @@ export const getTripById = async (req, res) => {
   }
 };
 
+export const getTripsPage = async (req, res) => {
+  res.render('trips/list', {
+    title: 'Scenic Train Trips'
+  });
+};
+
 export const getTripDetailsPage = async (req, res) => {
   const { tripId } = req.params;
   const trip = await tripModel.getTripById(tripId);
