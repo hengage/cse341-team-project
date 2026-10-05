@@ -6,11 +6,24 @@ export const getTrips = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     
+    // Filtering
+    const filter = {};
+    if (req.query.region) filter.region = req.query.region;
+    if (req.query.bestSeason) filter.bestSeason = req.query.bestSeason;
+    
+    // Keyword search
+    if (req.query.q) {
+      filter.$or = [
+        { name: { $regex: req.query.q, $options: 'i' } },
+        { description: { $regex: req.query.q, $options: 'i' } }
+      ];
+    }
+    
     if (page < 1 || limit < 1 || limit > 50) {
       return res.status(400).json({ message: 'Invalid page or limit' });
     }
 
-    const { trips, totalItems } = await tripModel.getPaginatedTrips(page, limit);
+    const { trips, totalItems } = await tripModel.getPaginatedTrips(page, limit, filter);
     
     return res.json({
       data: trips,

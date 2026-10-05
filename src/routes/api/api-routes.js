@@ -7,22 +7,27 @@ const router = express.Router();
  * @swagger
  * /api/trips:
  *   get:
- *     summary: Retrieve a paginated list of trips
+ *     summary: Retrieve a paginated and filtered list of trips
  *     parameters:
  *       - in: query
  *         name: page
- *         schema:
- *           type: integer
- *           default: 1
+ *         schema: { type: integer, default: 1 }
  *       - in: query
  *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *           maximum: 50
+ *         schema: { type: integer, default: 10, maximum: 50 }
+ *       - in: query
+ *         name: q
+ *         schema: { type: string }
+ *         description: Search by name or description
+ *       - in: query
+ *         name: region
+ *         schema: { type: string }
+ *       - in: query
+ *         name: bestSeason
+ *         schema: { type: string }
  *     responses:
  *       200:
- *         description: A paginated list of trips
+ *         description: A paginated, filtered list of trips
  */
 router.get('/trips', tripController.getTrips);
 

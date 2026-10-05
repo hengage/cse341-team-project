@@ -2,15 +2,25 @@
 <h1><%- title %></h1>
 
 <div id="filters">
-    Search by Region:
+    Search: <input type="text" id="search-input" placeholder="Search trips...">
+    Region:
     <select id="region-filter">
-        <option value="all">All Regions</option>
+        <option value="">All Regions</option>
+        <option value="central">Central</option>
+        <option value="northern">Northern</option>
+        <option value="kansai">Kansai</option>
+        <option value="hokkaido">Hokkaido</option>
     </select>
 
-    Search by Season:
+    Season:
     <select id="season-filter">
-        <option value="all">Any Season</option>
+        <option value="">Any Season</option>
+        <option value="spring">Spring</option>
+        <option value="summer">Summer</option>
+        <option value="autumn">Autumn</option>
+        <option value="winter">Winter</option>
     </select>
+    <button id="apply-filters">Apply</button>
 </div>
 
 <div class="routes-grid" id="routes-grid">
@@ -24,12 +34,11 @@
 </div>
 
 <template id="route-card-template">
-    <div class="route-card" id="region-container">
+    <div class="route-card">
         <div class="route-header">
             <h2 class="route-name"></h2>
             <span class="route-region"></span>
         </div>
-
         <div class="station-info">
             <div class="station">
                 <div class="station-type">From:</div>
@@ -41,7 +50,6 @@
                 <div class="station-name"></div>
             </div>
         </div>
-
         <div class="route-details">
             <div class="detail-item">
                 <span class="detail-icon">&#128337;</span>
@@ -57,17 +65,10 @@
                 </span>
             </div>
         </div>
-
         <div class="route-description"></div>
-
-        <div class="highlights">
-            <div class="highlights-list"></div>
-        </div>
-                
+        <div class="highlights"><div class="highlights-list"></div></div>
         <div class="route-actions">
-            <a href="#" class="view-details-btn">
-                View Details &amp; Book &#8594;
-            </a>
+            <a href="#" class="view-details-btn">View Details &amp; Book &#8594;</a>
         </div>
     </div>
 </template>
@@ -76,26 +77,31 @@
     let currentPage = 1;
 
     async function fetchTrips(page = 1) {
+        const q = document.getElementById('search-input').value;
+        const region = document.getElementById('region-filter').value;
+        const bestSeason = document.getElementById('season-filter').value;
+        
+        const params = new URLSearchParams({ page, limit: 10, q, region, bestSeason });
+        
         try {
-            const response = await fetch(`/api/trips?page=${page}&limit=10`);
+            const response = await fetch(`/api/trips?${params.toString()}`);
             if (!response.ok) throw new Error('Failed to fetch trips');
             const result = await response.json();
             renderTrips(result.data);
             updatePagination(result.pagination);
         } catch (error) {
             console.error('Error:', error);
-            document.getElementById('routes-grid').innerHTML = '<p>Error loading trips. Please try again later.</p>';
+            document.getElementById('routes-grid').innerHTML = '<p>Error loading trips.</p>';
         }
     }
 
     function renderTrips(trips) {
         const grid = document.getElementById('routes-grid');
         grid.innerHTML = '';
-        const template = document.getElementById('route-card-template');
+        const template = document.getElementById('trip-admin-template');
 
         trips.forEach(trip => {
             const clone = template.content.cloneNode(true);
-            
             const card = clone.querySelector('.route-card');
             card.classList.add(trip.region);
 
@@ -113,14 +119,12 @@
             clone.querySelector('.route-description').textContent = trip.description;
             
             const highlightsList = clone.querySelector('.highlights-list');
-            if (highlightsList && trip.highlights) {
-                trip.highlights.forEach(h => {
-                    const tag = document.createElement('span');
-                    tag.className = 'highlight-tag';
-                    tag.textContent = h;
-                    highlightsList.appendChild(tag);
-                });
-            }
+            trip.highlights.forEach(h => {
+                const tag = document.createElement('span');
+                tag.className = 'highlight-tag';
+                tag.textContent = h;
+                highlightsList.appendChild(tag);
+            });
             
             clone.querySelector('.view-details-btn').href = `/trips/${trip.id}`;
             grid.appendChild(clone);
@@ -134,6 +138,7 @@
         document.getElementById('next-page').disabled = !pagination.hasNextPage;
     }
 
+    document.getElementById('apply-filters').onclick = () => fetchTrips(1);
     document.getElementById('prev-page').onclick = () => fetchTrips(currentPage - 1);
     document.getElementById('next-page').onclick = () => fetchTrips(currentPage + 1);
 
