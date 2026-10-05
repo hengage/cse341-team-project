@@ -1,5 +1,4 @@
 import * as tripModel from '../models/trips.js';
-import { getSchedulesByTripId } from '../models/schedules.js';
 
 export const getTrips = async (req, res) => {
   try {
@@ -38,21 +37,4 @@ export const getTripById = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
-};
-
-export const getTripsPage = async (req, res) => {
-  res.render('trips/list', {
-    title: 'Scenic Train Trips'
-  });
-};
-
-export const getTripDetailsPage = async (req, res) => {
-  const { tripId } = req.params;
-  const trip = await tripModel.getTripById(tripId);
-  const schedules = await getSchedulesByTripId(tripId);
-  res.render('trips/details', {
-    title: 'Trip Details',
-    details: trip,
-    schedules
-  });
 };
