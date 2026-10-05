@@ -51,3 +51,12 @@ export const getTripById = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+export const getTripDetailsPage = async (req, res) => {
+  const { tripId } = req.params;
+  const trip = await tripModel.getTripById(tripId);
+  res.render('trips/details', {
+    title: 'Trip Details',
+    details: trip
+  });
+};
