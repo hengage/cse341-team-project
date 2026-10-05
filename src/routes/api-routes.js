@@ -125,7 +125,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.get('/trips', tripController.getAllTrips);
+router.get('/trips', tripController.getTrips);
 
 /**
  * @swagger
