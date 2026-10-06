@@ -46,10 +46,8 @@ const processBookingRequest = async (req, res) => {
 
 const bookingsAdminPage = async (req, res) => {
     try {
-        const bookings = await getAllBookings();
         return res.render('bookings', {
-            title: 'All Bookings',
-            bookings
+            title: 'All Bookings'
         });
     } catch (error) {
         return res.status(500).json({ error: error.message });
