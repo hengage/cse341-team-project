@@ -2,15 +2,25 @@
 <h1><%- title %></h1>
 
 <div id="filters">
-    Search by Region:
+    Search: <input type="text" id="search-input" placeholder="Search trips...">
+    Region:
     <select id="region-filter">
-        <option value="all">All Regions</option>
+        <option value="">All Regions</option>
+        <option value="central">Central</option>
+        <option value="northern">Northern</option>
+        <option value="kansai">Kansai</option>
+        <option value="hokkaido">Hokkaido</option>
     </select>
 
-    Search by Season:
+    Season:
     <select id="season-filter">
-        <option value="all">Any Season</option>
+        <option value="">Any Season</option>
+        <option value="spring">Spring</option>
+        <option value="summer">Summer</option>
+        <option value="autumn">Autumn</option>
+        <option value="winter">Winter</option>
     </select>
+    <button id="apply-filters">Apply</button>
 </div>
 
 <div class="routes-grid" id="routes-grid">
@@ -24,7 +34,7 @@
 </div>
 
 <template id="route-card-template">
-    <div class="route-card" id="region-container">
+    <div class="route-card">
         <div class="route-header">
             <h2 class="route-name"></h2>
             <span class="route-region"></span>
@@ -76,15 +86,26 @@
     let currentPage = 1;
 
     async function fetchTrips(page = 1) {
+        const q = document.getElementById('search-input').value;
+        const region = document.getElementById('region-filter').value;
+        const bestSeason = document.getElementById('season-filter').value;
+        
+        const params = new URLSearchParams({ page, limit: 10 });
+        if (q) params.append('q', q);
+        if (region) params.append('region', region);
+        if (bestSeason) params.append('bestSeason', bestSeason);
+        
+        console.log('Debug - Fetch URL:', `/api/trips?${params.toString()}`);
+        
         try {
-            const response = await fetch(`/api/trips?page=${page}&limit=10`);
+            const response = await fetch(`/api/trips?${params.toString()}`);
             if (!response.ok) throw new Error('Failed to fetch trips');
             const result = await response.json();
             renderTrips(result.data);
             updatePagination(result.pagination);
         } catch (error) {
             console.error('Error:', error);
-            document.getElementById('routes-grid').innerHTML = '<p>Error loading trips. Please try again later.</p>';
+            document.getElementById('routes-grid').innerHTML = '<p>Error loading trips.</p>';
         }
     }
 
@@ -134,10 +155,12 @@
         document.getElementById('next-page').disabled = !pagination.hasNextPage;
     }
 
-    document.getElementById('prev-page').onclick = () => fetchTrips(currentPage - 1);
-    document.getElementById('next-page').onclick = () => fetchTrips(currentPage + 1);
-
-    fetchTrips();
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('apply-filters').onclick = () => fetchTrips(1);
+        document.getElementById('prev-page').onclick = () => fetchTrips(currentPage - 1);
+        document.getElementById('next-page').onclick = () => fetchTrips(currentPage + 1);
+        fetchTrips();
+    });
 </script>
 
 <%- include('../partials/footer') %>
