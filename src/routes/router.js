@@ -32,7 +32,7 @@ router.get('/403', (req, res) => {
 router.use('/auth', authRouter);
 
 // Admin pages
-router.use('/', adminRouter);
+router.use('/admin', adminRouter);
 
 // Rail trips (existing functionality)
 router.use('/trips', railTripsRouter);

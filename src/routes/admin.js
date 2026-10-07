@@ -1,17 +1,16 @@
 import express from 'express';
-import { requirePageRole, requirePageLogin } from '../middleware/auth.js';
-import { showUsersPage, showAdminDashboardPage } from '../controllers/admin.js';
+import { requirePageRole, requirePageLogin, requireApiRole } from '../middleware/auth.js';
+import * as adminController from '../controllers/admin.js';
 
 const router = express.Router();
 
-router.get('/dashboard', requirePageRole('admin'), showAdminDashboardPage);
+router.get('/dashboard', requirePageRole('admin'), adminController.showAdminDashboardPage);
 
-router.get('/users', requirePageLogin(), showUsersPage);
-import { requirePageRole, requireApiRole } from '../middleware/auth.js';
-import * as adminController from '../controllers/admin.js';
+router.get('/users', requirePageLogin(), adminController.showUsersPage);
+
 import * as tripController from '../controllers/trips.js';
 
-const router = express.Router();
+
 
 // Admin Page Route
 router.get('/admin/trips', requirePageRole('admin'), adminController.getTripAdminPage);

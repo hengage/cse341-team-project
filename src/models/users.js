@@ -30,8 +30,13 @@ export const getUserById = async (id) => {
     return await User.findById(id).populate('role');
 };
 
-export const getAllUsers = async () => {
-    return await User.find().populate('role');
+export const getAllUsers = async (query) => {
+    return await User.find(query).populate('role');
+};
+
+export const getPaginatedUsers = async (page, limit, query) => {
+    const skip = (page - 1) * limit;
+    return await User.find(query).skip(skip).limit(limit).populate('role').sort({ username: 1 });
 };
 
 export const updateUser = async (id, updateData) => {
