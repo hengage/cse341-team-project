@@ -252,6 +252,34 @@ router.get('/bookings', bookingController.getAllBookingsHandler);
  *   get:
  *     summary: Get all users
  *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Number of users per page
+ *       - in: query
+ *         name: q
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Search term to filter users by username, email or display name
+ *       - in: query
+ *         name: filter
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [admin, user]
+ *         description: Filter users by role
  *     responses:
  *       200:
  *         description: An array of users

@@ -136,16 +136,27 @@ const hookUsersHydration = async () => {
     const listEl = document.getElementById('users-list');
     const templateEl = document.getElementById('user-card-template');
     const updateTemplateEl = document.getElementById('user-update-template');
+    const paginationTemplateEl = document.getElementById('users-pagination-template');
     
     if (!listEl || !templateEl || !updateTemplateEl) {
         return;
     }
 
+    let currentPage = 1;
+    let limit = 10;
+    let search = '';
+    let filter = '';
+
+    const searchInputEl = document.getElementById('search');
+    const searchButtonEl = document.getElementById('search-button');
+    const filterAdminEl = document.getElementById('filter-admin');
+    const filterUserEl = document.getElementById('filter-user');
+    
     try {
-        const renderUsers = (users) => {
+        const renderUsers = (payload) => {
             const fragment = document.createDocumentFragment();
             fragment.id = 'users-fragment';
-            users.forEach((user) => {
+            payload.users.forEach((user) => {
                 const card = templateEl.content.cloneNode(true);
                 const userCard = card.querySelector('div');
                 userCard.dataset.userId = user._id;
@@ -158,23 +169,58 @@ const hookUsersHydration = async () => {
 
                 fragment.appendChild(card);
             });
+
+            if (payload.totalPages === 0) {
+                listEl.innerHTML = '<p>No users found.</p>';
+                return;
+            }
+
+            const paginationControls = paginationTemplateEl.content.cloneNode(true);
+            if (payload.hasPreviousPage) {
+                paginationControls.querySelector('#previous-page').disabled = false;
+            } else {
+                paginationControls.querySelector('#previous-page').disabled = true;
+            }
+
+            if (payload.hasNextPage) {
+                paginationControls.querySelector('#next-page').disabled = false;
+            } else {
+                paginationControls.querySelector('#next-page').disabled = true;
+            }
+
+            paginationControls.querySelector('#current-page').textContent = payload.totalPages > 1 ? `${payload.page} of ${payload.totalPages}` : '1';
+
+            paginationControls.querySelector('#previous-page').addEventListener('click', async () => {
+                currentPage = currentPage - 1;
+                renderUsers(await loadAllUsers());
+            });
+            paginationControls.querySelector('#next-page').addEventListener('click', async () => {
+                currentPage = currentPage + 1;
+                renderUsers(await loadAllUsers());
+            });
+
+            listEl.innerHTML = '';
+
             listEl.appendChild(fragment);
+
+            listEl.appendChild(paginationControls);
         };
 
         const loadAllUsers = async () => {
-            const response = await fetch('/api/users');
+            const response = await fetch(`/api/users?q=${search}&filter=${filter}&page=${currentPage}&limit=${limit}`);
             if (!response.ok) {
                 throw new Error(`Failed to load users (${response.status})`);
             }
             const payload = await response.json();
-            if (!Array.isArray(payload)) {
-                return [payload];
+
+            if (!Array.isArray(payload.users)) {
+                payload.users = [payload.users];
             }
             return payload || [];
         };
 
-        const users = await loadAllUsers();
-        renderUsers(users);
+        const payload = await loadAllUsers();
+        renderUsers(payload);
 
         listEl.addEventListener('click', async (event) => {
             const button = event.target.closest('button[data-action]');
@@ -185,10 +231,10 @@ const hookUsersHydration = async () => {
             if (button.dataset.action === 'delete') {
                 await fetch(`/api/users/${userId}`, { method: 'DELETE' });
                 card.remove();
-                renderUsers(users);
+                renderUsers(payload);
             }
             if (button.dataset.action === 'update') {
-                const user = users.find(u => u._id === userId);
+                const user = payload.users.find(u => u._id === userId);
                 const updateForm = updateTemplateEl.content.cloneNode(true);
                 updateForm.querySelector('[data-user-id]').dataset.userId = user._id;
                 updateForm.querySelector('#update-display-name').value = user.displayName;
@@ -218,7 +264,7 @@ const hookUsersHydration = async () => {
                 card.replaceWith(updateForm);
             }
             if (button.dataset.action === 'cancel') {
-                const user = users.find(u => u._id === userId);
+                const user = payload.users.find(u => u._id === userId);
                 const newCard = templateEl.content.cloneNode(true);
                 newCard.querySelector('[data-user-id]').dataset.userId = user._id;
                 newCard.querySelector('#user-id').textContent = `Id: ${user._id}`;
@@ -229,6 +275,19 @@ const hookUsersHydration = async () => {
                 
                 card.replaceWith(newCard);
             }
+        });
+
+        searchButtonEl.addEventListener('click', async () => {
+            search = searchInputEl.value;
+            
+            if (filterAdminEl.checked) {
+                filter = 'admin';
+            } else if (filterUserEl.checked) {
+                filter = 'user';
+            }
+            
+            currentPage = 1;
+            renderUsers(await loadAllUsers());
         });
     } catch (error) {
         console.error(error);
