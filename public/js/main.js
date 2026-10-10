@@ -99,13 +99,20 @@ const hookBookingsHydration = async () => {
     const pageInfoEl = document.getElementById('bookings-page-info');
     const previousButton = document.getElementById('bookings-previous');
     const nextButton = document.getElementById('bookings-next');
+    const filtersForm = document.getElementById('booking-filters');
+    const ticketClassFilter = document.getElementById('booking-ticket-class');
+    const startDateFilter = document.getElementById('booking-start-date');
+    const endDateFilter = document.getElementById('booking-end-date');
+    const clearFiltersButton = document.getElementById('booking-clear-filters');
 
     if (!listEl || !templateEl || !passengerTemplateEl || !loadingEl || !errorEl || !emptyEl
-        || !paginationEl || !pageInfoEl || !previousButton || !nextButton) {
+        || !paginationEl || !pageInfoEl || !previousButton || !nextButton || !filtersForm
+        || !ticketClassFilter || !startDateFilter || !endDateFilter || !clearFiltersButton) {
         return;
     }
 
     let currentPage = 1;
+    let activeFilters = { ticketClass: null, startDate: null, endDate: null };
 
     const updatePagination = (pagination) => {
         pageInfoEl.textContent = pagination.totalItems === 0
@@ -126,7 +133,14 @@ const hookBookingsHydration = async () => {
         nextButton.disabled = true;
 
         try {
-            const response = await fetch(`/api/bookings?page=${page}&limit=10`);
+            const query = new URLSearchParams({ page: String(page), limit: '10' });
+            Object.entries(activeFilters).forEach(([key, value]) => {
+                if (value) {
+                    query.set(key, value);
+                }
+            });
+
+            const response = await fetch(`/api/bookings?${query.toString()}`);
             if (!response.ok) {
                 throw new Error(`Failed to load bookings (${response.status})`);
             }
@@ -180,6 +194,24 @@ const hookBookingsHydration = async () => {
         if (!nextButton.disabled) {
             loadPage(currentPage + 1);
         }
+    });
+
+    filtersForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        activeFilters = {
+            ticketClass: ticketClassFilter.value || null,
+            startDate: startDateFilter.value || null,
+            endDate: endDateFilter.value || null
+        };
+        currentPage = 1;
+        loadPage(currentPage);
+    });
+
+    clearFiltersButton.addEventListener('click', () => {
+        filtersForm.reset();
+        activeFilters = { ticketClass: null, startDate: null, endDate: null };
+        currentPage = 1;
+        loadPage(currentPage);
     });
 
     loadPage(currentPage);
