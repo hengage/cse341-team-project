@@ -92,6 +92,21 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/Passenger'
+ *     BookingPagination:
+ *       type: object
+ *       properties:
+ *         page:
+ *           type: integer
+ *         limit:
+ *           type: integer
+ *         totalItems:
+ *           type: integer
+ *         totalPages:
+ *           type: integer
+ *         hasNextPage:
+ *           type: boolean
+ *         hasPreviousPage:
+ *           type: boolean
  *     Passenger:
  *       type: object
  *       properties:
@@ -230,17 +245,42 @@ router.get('/trips/:id/schedules', (req, res) => {
  * @swagger
  * /api/bookings:
  *   get:
- *     summary: Get all bookings
+ *     summary: Get a page of bookings
  *     tags: [Bookings]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number. Defaults to 1.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *         description: Number of bookings per page. Defaults to 10; maximum is 50.
  *     responses:
  *       200:
- *         description: An array of bookings
+ *         description: A page of bookings sorted by booking date, newest first.
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Booking'
+ *               type: object
+ *               properties:
+ *                 bookings:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/BookingPagination'
+ *       400:
+ *         description: Invalid page or limit query parameter
  *       500:
  *         description: Server error
  */
