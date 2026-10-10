@@ -1,7 +1,9 @@
 import express from 'express';
+import { requireApiLogin } from '../middleware/auth.js';
 import * as tripController from '../controllers/trips.js';
 import { getSchedulesForTrip, getSchedulesForTripAndMonth } from '../controllers/schedules.js';
 import * as bookingController from '../controllers/bookings.js';
+import * as adminController from '../controllers/admin.js';
 
 const router = express.Router();
 
@@ -120,6 +122,32 @@ const router = express.Router();
  *         phone:
  *           type: string
  *           example: "+1234567890"
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: 1
+ *         displayName:
+ *           type: string
+ *           example: John Doe
+ *         userName:
+ *           type: string
+ *           example: johndoe
+ *         email:
+ *           type: string
+ *           example: johndoe@example.com
+ *         role:
+ *           $ref: '#/components/schemas/Role'
+ *     Role:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: 1
+ *         name:
+ *           type: string
+ *           example: admin
  */
 
 /**
@@ -298,5 +326,93 @@ router.get('/trips/:id/schedules', (req, res) => {
  *         description: Server error
  */
 router.get('/bookings', bookingController.getAllBookingsHandler);
+
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: An array of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Server error
+ */
+router.get('/users', requireApiLogin(), adminController.getAllUsersController);
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Update a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               displayName:
+ *                 type: string
+ *                 example: John Doe
+ *               userName:
+ *                 type: string
+ *                 example: johndoe
+ *               email:
+ *                 type: string
+ *                 example: johndoe@example.com
+ *               role:
+ *                 $ref: '#/components/schemas/Role'
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/users/:id', requireApiLogin(), adminController.updateUserController);
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Delete a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User id
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.delete('/users/:id', requireApiLogin(), adminController.deleteUserController);
 
 export default router;

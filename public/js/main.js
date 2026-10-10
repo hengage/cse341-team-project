@@ -217,6 +217,110 @@ const hookBookingsHydration = async () => {
     loadPage(currentPage);
 };
 
+const hookUsersHydration = async () => {
+    const listEl = document.getElementById('users-list');
+    const templateEl = document.getElementById('user-card-template');
+    const updateTemplateEl = document.getElementById('user-update-template');
+    
+    if (!listEl || !templateEl || !updateTemplateEl) {
+        return;
+    }
+
+    try {
+        const renderUsers = (users) => {
+            const fragment = document.createDocumentFragment();
+            fragment.id = 'users-fragment';
+            users.forEach((user) => {
+                const card = templateEl.content.cloneNode(true);
+                const userCard = card.querySelector('div');
+                userCard.dataset.userId = user._id;
+
+                userCard.querySelector('#user-id').textContent = `Id: ${user._id}`;
+                userCard.querySelector('#user-display-name').textContent = `Display Name: ${user.displayName}`;
+                userCard.querySelector('#user-username').textContent = `Username: ${user.username}`;
+                userCard.querySelector('#user-email').textContent = `Email: ${user.email}`;
+                userCard.querySelector('#user-role').textContent = `Role: ${user.role.name}`;
+
+                fragment.appendChild(card);
+            });
+            listEl.appendChild(fragment);
+        };
+
+        const loadAllUsers = async () => {
+            const response = await fetch('/api/users');
+            if (!response.ok) {
+                throw new Error(`Failed to load users (${response.status})`);
+            }
+            const payload = await response.json();
+            if (!Array.isArray(payload)) {
+                return [payload];
+            }
+            return payload || [];
+        };
+
+        const users = await loadAllUsers();
+        renderUsers(users);
+
+        listEl.addEventListener('click', async (event) => {
+            const button = event.target.closest('button[data-action]');
+            if (!button) return;
+            const card = button.closest('[data-user-id]');
+            const userId = card.dataset.userId;
+
+            if (button.dataset.action === 'delete') {
+                await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+                card.remove();
+                renderUsers(users);
+            }
+            if (button.dataset.action === 'update') {
+                const user = users.find(u => u._id === userId);
+                const updateForm = updateTemplateEl.content.cloneNode(true);
+                updateForm.querySelector('[data-user-id]').dataset.userId = user._id;
+                updateForm.querySelector('#update-display-name').value = user.displayName;
+                updateForm.querySelector('#update-username').value = user.username;
+                updateForm.querySelector('#update-email').value = user.email;
+                updateForm.querySelector(`#update-role[value="${user.role.name}"]`).checked = true;
+
+                updateForm.querySelector('form').addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const formData = new FormData(event.target);
+                    const updatedUser = {
+                        displayName: formData.get('update-display-name'),
+                        username: formData.get('update-username'),
+                        email: formData.get('update-email'),
+                        role: formData.get('update-role')
+                    };
+                    console.log(formData.forEach((value, key) => console.log(`${key}: ${value}`)));
+                    await fetch(`/api/users/${user._id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedUser)
+                    });
+                    listEl.innerHTML = '';
+                    renderUsers(await loadAllUsers());
+                });
+
+                card.replaceWith(updateForm);
+            }
+            if (button.dataset.action === 'cancel') {
+                const user = users.find(u => u._id === userId);
+                const newCard = templateEl.content.cloneNode(true);
+                newCard.querySelector('[data-user-id]').dataset.userId = user._id;
+                newCard.querySelector('#user-id').textContent = `Id: ${user._id}`;
+                newCard.querySelector('#user-display-name').textContent = `Display Name: ${user.displayName}`;
+                newCard.querySelector('#user-username').textContent = `Username: ${user.username}`;
+                newCard.querySelector('#user-email').textContent = `Email: ${user.email}`;
+                newCard.querySelector('#user-role').textContent = `Role: ${user.role.name}`;
+                
+                card.replaceWith(newCard);
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        return;
+    }
+};
+
 const hookScheduleHydration = () => {
     const detailEl = document.querySelector('.route-detail[data-trip-id]');
     if (!detailEl) {
@@ -314,5 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
     hookSeasonSorter();
     hookTrainsCatalog();
     hookBookingsHydration();
+    hookUsersHydration();
     hookScheduleHydration();
 });
