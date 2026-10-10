@@ -73,10 +73,14 @@ const processBookingRequest = async (req, res) => {
     res.redirect(`/trips/confirmation/${booking.id}`);
 };
 
-const bookingsAdminPage = (req, res) => {
-    return res.render('bookings', {
-        title: 'All Bookings'
-    });
+const bookingsAdminPage = async (req, res) => {
+    try {
+        return res.render('bookings', {
+            title: 'All Bookings'
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
 };
 
 export { bookingPage, processBookingRequest, getAllBookingsHandler, bookingsAdminPage };
