@@ -7,11 +7,9 @@ const router = express.Router();
 router.get('/dashboard', requirePageRole('admin'), showAdminDashboardPage);
 
 router.get('/users', requirePageLogin(), showUsersPage);
-import { requirePageRole, requireApiRole } from '../middleware/auth.js';
+import { requireApiRole } from '../middleware/auth.js';
 import * as adminController from '../controllers/admin.js';
 import * as tripController from '../controllers/trips.js';
-
-const router = express.Router();
 
 // Admin Page Route
 router.get('/admin/trips', requirePageRole('admin'), adminController.getTripAdminPage);
