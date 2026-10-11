@@ -8,22 +8,9 @@
         "endStation": "toyama",
         "duration": "4.5 hours",
         "distance": 180,
-        "highlights": [
-            "Mount Tateyama views",
-            "Hida River gorge",
-            "Traditional alpine villages"
-        ],
+        "highlights": ["Mount Tateyama views", "Hida River gorge", "Traditional alpine villages"],
         "bestSeason": "autumn",
-        "operatingMonths": [
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11
-        ],
+        "operatingMonths": [4, 5, 6, 7, 8, 9, 10, 11],
         "imageUrl": "/images/routes/alpine-panorama.png"
     },
     {
@@ -35,26 +22,9 @@
         "endStation": "akita",
         "duration": "5 hours",
         "distance": 147,
-        "highlights": [
-            "Sea of Japan coastline",
-            "Senjojiki Rock Beach",
-            "Traditional fishing villages"
-        ],
+        "highlights": ["Sea of Japan coastline", "Senjojiki Rock Beach", "Traditional fishing villages"],
         "bestSeason": "summer",
-        "operatingMonths": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12
-        ],
+        "operatingMonths": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         "imageUrl": "/images/routes/coastal-breeze.png"
     },
     {
@@ -66,22 +36,9 @@
         "endStation": "wakayama",
         "duration": "2.5 hours",
         "distance": 63,
-        "highlights": [
-            "Cherry blossom valleys",
-            "Historic temples",
-            "Mountain tunnels"
-        ],
+        "highlights": ["Cherry blossom valleys", "Historic temples", "Mountain tunnels"],
         "bestSeason": "spring",
-        "operatingMonths": [
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10
-        ],
+        "operatingMonths": [3, 4, 5, 6, 7, 8, 9, 10],
         "imageUrl": "/images/routes/sakura-valley.png"
     },
     {
@@ -93,22 +50,9 @@
         "endStation": "keyakidaira",
         "duration": "1.5 hours",
         "distance": 20,
-        "highlights": [
-            "Kurobe Gorge",
-            "Alpine bridges",
-            "Waterfall views"
-        ],
+        "highlights": ["Kurobe Gorge", "Alpine bridges", "Waterfall views"],
         "bestSeason": "autumn",
-        "operatingMonths": [
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11
-        ],
+        "operatingMonths": [4, 5, 6, 7, 8, 9, 10, 11],
         "imageUrl": "/images/routes/gorge-explorer.png"
     },
     {
@@ -120,16 +64,9 @@
         "endStation": "shibecha",
         "duration": "2 hours",
         "distance": 31,
-        "highlights": [
-            "Kushiro Wetlands",
-            "Red-crowned cranes",
-            "Steam locomotive experience"
-        ],
+        "highlights": ["Kushiro Wetlands", "Red-crowned cranes", "Steam locomotive experience"],
         "bestSeason": "winter",
-        "operatingMonths": [
-            1,
-            2
-        ],
+        "operatingMonths": [1, 2],
         "imageUrl": "/images/routes/winter-wetlands.png"
     },
     {
@@ -141,24 +78,9 @@
         "endStation": "kameoka",
         "duration": "0.5 hours",
         "distance": 7,
-        "highlights": [
-            "Hozu River gorge",
-            "Bamboo forests",
-            "Historic temples"
-        ],
+        "highlights": ["Hozu River gorge", "Bamboo forests", "Historic temples"],
         "bestSeason": "autumn",
-        "operatingMonths": [
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12
-        ],
+        "operatingMonths": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         "imageUrl": "/images/routes/romantic-gorge.png"
     },
     {
@@ -170,17 +92,93 @@
         "endStation": "osaka",
         "duration": "3 hours",
         "distance": 500,
-        "highlights": [
-            "Test highlight 1",
-            "Test highlight 2"
-        ],
+        "highlights": ["Test highlight 1", "Test highlight 2"],
         "bestSeason": "spring",
-        "operatingMonths": [
-            1,
-            2,
-            3,
-            4
-        ],
+        "operatingMonths": [1, 2, 3, 4],
         "imageUrl": "/images/routes/test-trip.png"
+    },
+    {
+        "id": "hokkaido-express",
+        "name": "Hokkaido Express",
+        "description": "Traverse the vast landscapes of Hokkaido.",
+        "region": "hokkaido",
+        "startStation": "sapporo",
+        "endStation": "hakodate",
+        "duration": "4 hours",
+        "distance": 300,
+        "highlights": ["Vast landscapes", "Local seafood"],
+        "bestSeason": "summer",
+        "operatingMonths": [5, 6, 7, 8, 9],
+        "imageUrl": "/images/routes/hokkaido-express.png"
+    },
+    {
+        "id": "tokyo-suburban",
+        "name": "Tokyo Suburban Line",
+        "description": "Explore the outskirts of Tokyo.",
+        "region": "central",
+        "startStation": "shinjuku",
+        "endStation": "tachikawa",
+        "duration": "1 hour",
+        "distance": 30,
+        "highlights": ["Suburban views", "Urban parks"],
+        "bestSeason": "spring",
+        "operatingMonths": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "imageUrl": "/images/routes/tokyo-suburban.png"
+    },
+    {
+        "id": "kyushu-coast",
+        "name": "Kyushu Coast Line",
+        "description": "Breathtaking ocean views along the Kyushu coast.",
+        "region": "kansai",
+        "startStation": "fukuoka",
+        "endStation": "kagoshima",
+        "duration": "6 hours",
+        "distance": 400,
+        "highlights": ["Ocean views", "Volcanoes"],
+        "bestSeason": "summer",
+        "operatingMonths": [6, 7, 8, 9],
+        "imageUrl": "/images/routes/kyushu-coast.png"
+    },
+    {
+        "id": "nagoya-shuttle",
+        "name": "Nagoya Shuttle",
+        "description": "Quick transit between city hubs.",
+        "region": "central",
+        "startStation": "nagoya",
+        "endStation": "gifu",
+        "duration": "0.5 hours",
+        "distance": 30,
+        "highlights": ["Fast transit", "City views"],
+        "bestSeason": "winter",
+        "operatingMonths": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "imageUrl": "/images/routes/nagoya-shuttle.png"
+    },
+    {
+        "id": "northern-express",
+        "name": "Northern Express",
+        "description": "Fast travel to the far north.",
+        "region": "northern",
+        "startStation": "sendai",
+        "endStation": "sapporo",
+        "duration": "8 hours",
+        "distance": 800,
+        "highlights": ["Long journey", "Snow landscapes"],
+        "bestSeason": "winter",
+        "operatingMonths": [12, 1, 2],
+        "imageUrl": "/images/routes/northern-express.png"
+    },
+    {
+        "id": "mount-fuji-view",
+        "name": "Mt. Fuji View Line",
+        "description": "Best views of the iconic Mount Fuji.",
+        "region": "central",
+        "startStation": "tokyo",
+        "endStation": "kawaguchiko",
+        "duration": "2 hours",
+        "distance": 100,
+        "highlights": ["Mount Fuji", "Lakeside views"],
+        "bestSeason": "spring",
+        "operatingMonths": [3, 4, 5, 9, 10, 11],
+        "imageUrl": "/images/routes/mount-fuji-view.png"
     }
 ]
