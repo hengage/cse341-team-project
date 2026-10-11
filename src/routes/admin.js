@@ -15,6 +15,7 @@ import * as tripController from '../controllers/trips.js';
 router.get('/admin/trips', requirePageRole('admin'), adminController.getTripAdminPage);
 
 // API Admin Routes
+router.post('/api/admin/trips', requireApiRole('admin'), adminController.createTrip);
 router.put('/api/admin/trips/:id', requireApiRole('admin'), adminController.updateTrip);
 router.delete('/api/admin/trips/:id', requireApiRole('admin'), adminController.deleteTrip);
 

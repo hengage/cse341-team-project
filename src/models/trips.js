@@ -13,8 +13,12 @@ export const getTripById = async (id) => {
   return await Trip.findOne({ id: id });
 };
 
+export const createTrip = async (tripData) => {
+  return await Trip.create(tripData);
+};
+
 export const updateTrip = async (id, tripData) => {
-  return await Trip.findOneAndUpdate({ id: id }, tripData, { new: true });
+  return await Trip.findOneAndUpdate({ id: id }, tripData, { returnDocument: 'after' });
 };
 
 export const deleteTrip = async (id) => {
