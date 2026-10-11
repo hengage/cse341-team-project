@@ -1,11 +1,13 @@
 import * as tripModel from '../models/trips.js';
+import { getSchedulesByTripId } from '../models/schedules.js';
 
 export const getTrips = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = req.query.page === undefined ? 1 : Number(req.query.page);
+    const limit = req.query.limit === undefined ? 10 : Number(req.query.limit);
     
-    if (page < 1 || limit < 1 || limit > 50) {
+    if (!Number.isInteger(page) || !Number.isInteger(limit) ||
+        page < 1 || limit < 1 || limit > 50) {
       return res.status(400).json({ message: 'Invalid page or limit' });
     }
 
@@ -48,8 +50,17 @@ export const getTripsPage = async (req, res) => {
 export const getTripDetailsPage = async (req, res) => {
   const { tripId } = req.params;
   const trip = await tripModel.getTripById(tripId);
-  res.render('trips/details', {
+
+  if (!trip) {
+    return res.status(404).render('errors/404', {
+      title: 'Trip Not Found'
+    });
+  }
+
+  const schedules = await getSchedulesByTripId(tripId);
+  return res.render('trips/details', {
     title: 'Trip Details',
-    details: trip
+    details: trip,
+    schedules
   });
 };

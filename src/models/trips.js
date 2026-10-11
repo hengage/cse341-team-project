@@ -3,7 +3,7 @@ import Trip from './schemas/trips.js';
 export const getPaginatedTrips = async (page, limit) => {
   const skip = (page - 1) * limit;
   const [trips, totalItems] = await Promise.all([
-    Trip.find({}).skip(skip).limit(limit),
+    Trip.find({}).sort({ id: 1 }).skip(skip).limit(limit),
     Trip.countDocuments({})
   ]);
   return { trips, totalItems };

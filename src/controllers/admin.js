@@ -1,7 +1,7 @@
 import * as tripModel from '../models/trips.js';
 
 export const getTripAdminPage = async (req, res) => {
-  res.render('admin/trips', {
+  return res.render('admin/trips', {
     title: 'Trip Admin'
   });
 };
@@ -13,9 +13,9 @@ export const updateTrip = async (req, res) => {
     if (!updatedTrip) {
       return res.status(404).json({ message: 'Trip not found' });
     }
-    res.json(updatedTrip);
+    return res.json(updatedTrip);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -25,8 +25,8 @@ export const deleteTrip = async (req, res) => {
     if (!deletedTrip) {
       return res.status(404).json({ message: 'Trip not found' });
     }
-    res.json({ message: 'Trip deleted' });
+    return res.json({ message: 'Trip deleted' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
