@@ -56,40 +56,229 @@ const hookBookingsHydration = async () => {
     const listEl = document.getElementById('bookings-list');
     const templateEl = document.getElementById('booking-card-template');
     const passengerTemplateEl = document.getElementById('passenger-card-template');
-    if (!listEl || !templateEl || !passengerTemplateEl) {
+    const loadingEl = document.getElementById('bookings-loading');
+    const errorEl = document.getElementById('bookings-error');
+    const emptyEl = document.getElementById('bookings-empty');
+    const paginationEl = document.getElementById('bookings-pagination');
+    const pageInfoEl = document.getElementById('bookings-page-info');
+    const previousButton = document.getElementById('bookings-previous');
+    const nextButton = document.getElementById('bookings-next');
+    const filtersForm = document.getElementById('booking-filters');
+    const ticketClassFilter = document.getElementById('booking-ticket-class');
+    const startDateFilter = document.getElementById('booking-start-date');
+    const endDateFilter = document.getElementById('booking-end-date');
+    const clearFiltersButton = document.getElementById('booking-clear-filters');
+
+    if (!listEl || !templateEl || !passengerTemplateEl || !loadingEl || !errorEl || !emptyEl
+        || !paginationEl || !pageInfoEl || !previousButton || !nextButton || !filtersForm
+        || !ticketClassFilter || !startDateFilter || !endDateFilter || !clearFiltersButton) {
+        return;
+    }
+
+    let currentPage = 1;
+    let activeFilters = { ticketClass: null, startDate: null, endDate: null };
+
+    const updatePagination = (pagination) => {
+        pageInfoEl.textContent = pagination.totalItems === 0
+            ? 'No bookings'
+            : `Page ${pagination.page} of ${pagination.totalPages} (${pagination.totalItems} bookings)`;
+        previousButton.disabled = !pagination.hasPreviousPage;
+        nextButton.disabled = !pagination.hasNextPage;
+        paginationEl.hidden = false;
+    };
+
+    const loadPage = async (page) => {
+        loadingEl.hidden = false;
+        errorEl.hidden = true;
+        emptyEl.hidden = true;
+        paginationEl.hidden = true;
+        listEl.replaceChildren();
+        previousButton.disabled = true;
+        nextButton.disabled = true;
+
+        try {
+            const query = new URLSearchParams({ page: String(page), limit: '10' });
+            Object.entries(activeFilters).forEach(([key, value]) => {
+                if (value) {
+                    query.set(key, value);
+                }
+            });
+
+            const response = await fetch(`/api/bookings?${query.toString()}`);
+            if (!response.ok) {
+                throw new Error(`Failed to load bookings (${response.status})`);
+            }
+
+            const payload = await response.json();
+            if (!Array.isArray(payload.bookings) || !payload.pagination) {
+                throw new Error('Invalid bookings response');
+            }
+
+            const fragment = document.createDocumentFragment();
+            payload.bookings.forEach((booking) => {
+                const card = templateEl.content.cloneNode(true);
+
+                card.querySelector('#booking-reference p').textContent = `Booking Reference: ${booking.id}`;
+                card.querySelector('#ticket-class p').textContent = `Ticket Class: ${booking.ticketClass}`;
+                card.querySelector('#selected-day p').textContent = `Selected Day: ${booking.selectedDay}`;
+                card.querySelector('#booked-on p').textContent = `Booked On: ${booking.createdAt}`;
+
+                const passengersEl = card.querySelector('#passengers');
+                (booking.passengers || []).forEach((passenger) => {
+                    const passengerCard = passengerTemplateEl.content.cloneNode(true);
+                    passengerCard.querySelector('#passenger-name').textContent = `Passenger Name: ${passenger.firstName} ${passenger.lastName}`;
+                    passengerCard.querySelector('#passenger-email').textContent = `Passenger Email: ${passenger.email}`;
+                    passengerCard.querySelector('#passenger-phone').textContent = `Passenger Phone: ${passenger.phone}`;
+                    passengersEl.appendChild(passengerCard);
+                });
+
+                fragment.appendChild(card);
+            });
+
+            listEl.replaceChildren(fragment);
+            currentPage = payload.pagination.page;
+            loadingEl.hidden = true;
+            emptyEl.hidden = payload.bookings.length > 0;
+            updatePagination(payload.pagination);
+        } catch (error) {
+            loadingEl.hidden = true;
+            errorEl.textContent = 'Unable to load bookings right now. Please try again in a moment.';
+            errorEl.hidden = false;
+            console.error(error);
+        }
+    };
+
+    previousButton.addEventListener('click', () => {
+        if (currentPage > 1) {
+            loadPage(currentPage - 1);
+        }
+    });
+
+    nextButton.addEventListener('click', () => {
+        if (!nextButton.disabled) {
+            loadPage(currentPage + 1);
+        }
+    });
+
+    filtersForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        activeFilters = {
+            ticketClass: ticketClassFilter.value || null,
+            startDate: startDateFilter.value || null,
+            endDate: endDateFilter.value || null
+        };
+        currentPage = 1;
+        loadPage(currentPage);
+    });
+
+    clearFiltersButton.addEventListener('click', () => {
+        filtersForm.reset();
+        activeFilters = { ticketClass: null, startDate: null, endDate: null };
+        currentPage = 1;
+        loadPage(currentPage);
+    });
+
+    loadPage(currentPage);
+};
+
+const hookUsersHydration = async () => {
+    const listEl = document.getElementById('users-list');
+    const templateEl = document.getElementById('user-card-template');
+    const updateTemplateEl = document.getElementById('user-update-template');
+    
+    if (!listEl || !templateEl || !updateTemplateEl) {
         return;
     }
 
     try {
-        const response = await fetch('/api/bookings');
-        if (!response.ok) {
-            throw new Error(`Failed to load bookings (${response.status})`);
-        }
+        const renderUsers = (users) => {
+            const fragment = document.createDocumentFragment();
+            fragment.id = 'users-fragment';
+            users.forEach((user) => {
+                const card = templateEl.content.cloneNode(true);
+                const userCard = card.querySelector('div');
+                userCard.dataset.userId = user._id;
 
-        const payload = await response.json();
-        const bookings = payload || [];
-        const fragment = document.createDocumentFragment();
+                userCard.querySelector('#user-id').textContent = `Id: ${user._id}`;
+                userCard.querySelector('#user-display-name').textContent = `Display Name: ${user.displayName}`;
+                userCard.querySelector('#user-username').textContent = `Username: ${user.username}`;
+                userCard.querySelector('#user-email').textContent = `Email: ${user.email}`;
+                userCard.querySelector('#user-role').textContent = `Role: ${user.role.name}`;
 
-        bookings.forEach((booking) => {
-            const card = templateEl.content.cloneNode(true);
-
-            card.querySelector('#booking-reference p').textContent = `Booking Reference: ${booking.id}`;
-            card.querySelector('#ticket-class p').textContent = `Ticket Class: ${booking.ticketClass}`;
-            card.querySelector('#selected-day p').textContent = `Selected Day: ${booking.selectedDay}`;
-            card.querySelector('#booked-on p').textContent = `Booked On: ${booking.createdAt}`;
-
-            const passengersEl = card.querySelector('#passengers');
-            (booking.passengers || []).forEach((passenger) => {
-                const passengerCard = passengerTemplateEl.content.cloneNode(true);
-                passengerCard.querySelector('#passenger-name').textContent = `Passenger Name: ${passenger.firstName} ${passenger.lastName}`;
-                passengerCard.querySelector('#passenger-email').textContent = `Passenger Email: ${passenger.email}`;
-                passengerCard.querySelector('#passenger-phone').textContent = `Passenger Phone: ${passenger.phone}`;
-                passengersEl.appendChild(passengerCard);
+                fragment.appendChild(card);
             });
+            listEl.appendChild(fragment);
+        };
 
-            fragment.appendChild(card);
+        const loadAllUsers = async () => {
+            const response = await fetch('/api/users');
+            if (!response.ok) {
+                throw new Error(`Failed to load users (${response.status})`);
+            }
+            const payload = await response.json();
+            if (!Array.isArray(payload)) {
+                return [payload];
+            }
+            return payload || [];
+        };
+
+        const users = await loadAllUsers();
+        renderUsers(users);
+
+        listEl.addEventListener('click', async (event) => {
+            const button = event.target.closest('button[data-action]');
+            if (!button) return;
+            const card = button.closest('[data-user-id]');
+            const userId = card.dataset.userId;
+
+            if (button.dataset.action === 'delete') {
+                await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+                card.remove();
+                renderUsers(users);
+            }
+            if (button.dataset.action === 'update') {
+                const user = users.find(u => u._id === userId);
+                const updateForm = updateTemplateEl.content.cloneNode(true);
+                updateForm.querySelector('[data-user-id]').dataset.userId = user._id;
+                updateForm.querySelector('#update-display-name').value = user.displayName;
+                updateForm.querySelector('#update-username').value = user.username;
+                updateForm.querySelector('#update-email').value = user.email;
+                updateForm.querySelector(`#update-role[value="${user.role.name}"]`).checked = true;
+
+                updateForm.querySelector('form').addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const formData = new FormData(event.target);
+                    const updatedUser = {
+                        displayName: formData.get('update-display-name'),
+                        username: formData.get('update-username'),
+                        email: formData.get('update-email'),
+                        role: formData.get('update-role')
+                    };
+                    console.log(formData.forEach((value, key) => console.log(`${key}: ${value}`)));
+                    await fetch(`/api/users/${user._id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedUser)
+                    });
+                    listEl.innerHTML = '';
+                    renderUsers(await loadAllUsers());
+                });
+
+                card.replaceWith(updateForm);
+            }
+            if (button.dataset.action === 'cancel') {
+                const user = users.find(u => u._id === userId);
+                const newCard = templateEl.content.cloneNode(true);
+                newCard.querySelector('[data-user-id]').dataset.userId = user._id;
+                newCard.querySelector('#user-id').textContent = `Id: ${user._id}`;
+                newCard.querySelector('#user-display-name').textContent = `Display Name: ${user.displayName}`;
+                newCard.querySelector('#user-username').textContent = `Username: ${user.username}`;
+                newCard.querySelector('#user-email').textContent = `Email: ${user.email}`;
+                newCard.querySelector('#user-role').textContent = `Role: ${user.role.name}`;
+                
+                card.replaceWith(newCard);
+            }
         });
-        listEl.appendChild(fragment);
     } catch (error) {
         console.error(error);
         return;
@@ -191,5 +380,6 @@ const hookScheduleHydration = () => {
 document.addEventListener('DOMContentLoaded', () => {
     hookTrainsCatalog();
     hookBookingsHydration();
+    hookUsersHydration();
     hookScheduleHydration();
 });

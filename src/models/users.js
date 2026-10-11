@@ -1,4 +1,5 @@
 import User from './schemas/users.js';
+import { getRoleByName } from './roles.js';
 
 const normalizeUsername = (username) => username?.trim().toLowerCase();
 const normalizeEmail = (email) => email?.trim().toLowerCase();
@@ -27,4 +28,35 @@ export const getUserByEmail = async (email) => {
 
 export const getUserById = async (id) => {
     return await User.findById(id).populate('role');
+};
+
+export const getAllUsers = async () => {
+    return await User.find().populate('role');
+};
+
+export const updateUser = async (id, updateData) => {
+    const user = await getUserById(id);
+
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    user.username = updateData.userName || user.username;
+    user.displayName = updateData.displayName || user.displayName;
+    user.email = updateData.email || user.email;
+
+    const newRole = await getRoleByName(updateData.role);
+    user.role = newRole || user.role;
+
+    return await user.save();
+};
+
+export const deleteUser = async (id) => {
+    const user = await getUserById(id);
+
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    return await User.findByIdAndDelete(id);
 };
