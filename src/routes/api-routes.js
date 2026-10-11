@@ -1,7 +1,9 @@
 import express from 'express';
+import { requireApiLogin } from '../middleware/auth.js';
 import * as tripController from '../controllers/trips.js';
 import { getSchedulesForTrip, getSchedulesForTripAndMonth } from '../controllers/schedules.js';
 import * as bookingController from '../controllers/bookings.js';
+import * as adminController from '../controllers/admin.js';
 
 const router = express.Router();
 
@@ -90,6 +92,21 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/Passenger'
+ *     BookingPagination:
+ *       type: object
+ *       properties:
+ *         page:
+ *           type: integer
+ *         limit:
+ *           type: integer
+ *         totalItems:
+ *           type: integer
+ *         totalPages:
+ *           type: integer
+ *         hasNextPage:
+ *           type: boolean
+ *         hasPreviousPage:
+ *           type: boolean
  *     Passenger:
  *       type: object
  *       properties:
@@ -105,23 +122,72 @@ const router = express.Router();
  *         phone:
  *           type: string
  *           example: "+1234567890"
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: 1
+ *         displayName:
+ *           type: string
+ *           example: John Doe
+ *         userName:
+ *           type: string
+ *           example: johndoe
+ *         email:
+ *           type: string
+ *           example: johndoe@example.com
+ *         role:
+ *           $ref: '#/components/schemas/Role'
+ *     Role:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: 1
+ *         name:
+ *           type: string
+ *           example: admin
  */
 
 /**
  * @swagger
  * /api/trips:
  *   get:
- *     summary: Get all trips
+ *     summary: Get a paginated list of trips
  *     tags: [Trips]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number to return
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *         description: Maximum number of trips per page
  *     responses:
  *       200:
- *         description: An array of trips
+ *         description: Paginated trip results
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Trip'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Trip'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       400:
+ *         description: Invalid page or limit
  *       500:
  *         description: Server error
  */
@@ -202,20 +268,174 @@ router.get('/trips/:id/schedules', (req, res) => {
  * @swagger
  * /api/bookings:
  *   get:
- *     summary: Get all bookings
+ *     summary: Get a page of bookings
  *     tags: [Bookings]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number. Defaults to 1.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *         description: Number of bookings per page. Defaults to 10; maximum is 50.
+ *       - in: query
+ *         name: ticketClass
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [standard, premium, first]
+ *         description: Filter by exact ticket class.
+ *       - in: query
+ *         name: startDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: '2026-10-01'
+ *         description: Include bookings created at or after 00:00 UTC on this date (createdAt).
+ *       - in: query
+ *         name: endDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: '2026-10-02'
+ *         description: Include bookings through this date in UTC (createdAt).
  *     responses:
  *       200:
- *         description: An array of bookings
+ *         description: A page of bookings matching the active filters, sorted newest first by createdAt.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 bookings:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/BookingPagination'
+ *                 filters:
+ *                   type: object
+ *                   properties:
+ *                     ticketClass:
+ *                       type: string
+ *                       nullable: true
+ *                       enum: [standard, premium, first]
+ *                       example: standard
+ *                     startDate:
+ *                       type: string
+ *                       nullable: true
+ *                       format: date
+ *                       example: '2026-10-01'
+ *                     endDate:
+ *                       type: string
+ *                       nullable: true
+ *                       format: date
+ *                       example: '2026-10-02'
+ *       400:
+ *         description: Invalid pagination or filter query parameter, malformed date, impossible date, or startDate later than endDate
+ *       500:
+ *         description: Server error
+ */
+router.get('/bookings', bookingController.getAllBookingsHandler);
+
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: An array of users
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Booking'
+ *                 $ref: '#/components/schemas/User'
  *       500:
  *         description: Server error
  */
-router.get('/bookings', bookingController.getAllBookingsHandler);
+router.get('/users', requireApiLogin(), adminController.getAllUsersController);
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Update a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               displayName:
+ *                 type: string
+ *                 example: John Doe
+ *               userName:
+ *                 type: string
+ *                 example: johndoe
+ *               email:
+ *                 type: string
+ *                 example: johndoe@example.com
+ *               role:
+ *                 $ref: '#/components/schemas/Role'
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/users/:id', requireApiLogin(), adminController.updateUserController);
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Delete a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User id
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.delete('/users/:id', requireApiLogin(), adminController.deleteUserController);
 
 export default router;

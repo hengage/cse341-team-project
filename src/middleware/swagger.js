@@ -11,7 +11,7 @@ const options = {
     },
   },
   // Paths to files containing OpenAPI definitions
-  apis: ['./src/routes/api/*.js'],
+  apis: ['./src/routes/api-routes.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

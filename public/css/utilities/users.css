@@ -1,0 +1,26 @@
+article.users-page {
+    div.user-card, form {
+        border: 1px solid #ccc;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background-color: #a4f7bd39;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        button {
+            max-width: 200px;
+        }
+        input {
+            display: block;
+        }
+        #update-role-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+    }
+}
