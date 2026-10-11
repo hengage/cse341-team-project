@@ -172,6 +172,21 @@ const router = express.Router();
  *           maximum: 50
  *           default: 10
  *         description: Maximum number of trips per page
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Literal keyword to match against trip names and descriptions
+ *       - in: query
+ *         name: region
+ *         schema:
+ *           type: string
+ *         description: Region value used to filter trips
+ *       - in: query
+ *         name: bestSeason
+ *         schema:
+ *           type: string
+ *         description: Season value used to filter trips
  *     responses:
  *       200:
  *         description: Paginated trip results
