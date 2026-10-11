@@ -1,17 +1,33 @@
 import * as tripModel from '../models/trips.js';
 import { getSchedulesByTripId } from '../models/schedules.js';
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export const getTrips = async (req, res) => {
   try {
     const page = req.query.page === undefined ? 1 : Number(req.query.page);
     const limit = req.query.limit === undefined ? 10 : Number(req.query.limit);
+    
+    // Filtering
+    const filter = {};
+    if (req.query.region) filter.region = req.query.region;
+    if (req.query.bestSeason) filter.bestSeason = req.query.bestSeason;
+    
+    // Keyword search
+    if (req.query.q) {
+      const escapedQuery = escapeRegex(req.query.q);
+      filter.$or = [
+        { name: { $regex: escapedQuery, $options: 'i' } },
+        { description: { $regex: escapedQuery, $options: 'i' } }
+      ];
+    }
     
     if (!Number.isInteger(page) || !Number.isInteger(limit) ||
         page < 1 || limit < 1 || limit > 50) {
       return res.status(400).json({ message: 'Invalid page or limit' });
     }
 
-    const { trips, totalItems } = await tripModel.getPaginatedTrips(page, limit);
+    const { trips, totalItems } = await tripModel.getPaginatedTrips(page, limit, filter);
     
     return res.json({
       data: trips,
