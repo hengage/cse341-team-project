@@ -14,6 +14,38 @@ describe('GET /api/trips search and filtering', () => {
     expect(response.body.pagination.totalItems).toBe(1);
   });
 
+  test('filters trips by region and reports matching pagination totals', async () => {
+    const response = await request(app)
+      .get('/api/trips')
+      .query({ region: 'central' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(6);
+    expect(response.body.data.every((trip) => trip.region === 'central')).toBe(true);
+    expect(response.body.pagination).toEqual(
+      expect.objectContaining({
+        totalItems: 6,
+        totalPages: 1,
+        hasNextPage: false
+      })
+    );
+  });
+
+  test('filters trips by season and returns known seeded records', async () => {
+    const response = await request(app)
+      .get('/api/trips')
+      .query({ bestSeason: 'winter' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.map((trip) => trip.id)).toEqual([
+      'nagoya-shuttle',
+      'northern-express',
+      'winter-wetlands'
+    ]);
+    expect(response.body.data.every((trip) => trip.bestSeason === 'winter')).toBe(true);
+    expect(response.body.pagination.totalItems).toBe(3);
+  });
+
   test('combines region and season filters', async () => {
     const response = await request(app)
       .get('/api/trips')
@@ -29,6 +61,23 @@ describe('GET /api/trips search and filtering', () => {
       })
     );
     expect(response.body.pagination.totalItems).toBe(1);
+  });
+
+  test('applies filters before pagination and returns filtered metadata', async () => {
+    const response = await request(app)
+      .get('/api/trips')
+      .query({ region: 'central', bestSeason: 'spring', page: 2, limit: 2 });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.map((trip) => trip.id)).toEqual(['tokyo-suburban']);
+    expect(response.body.pagination).toEqual({
+      page: 2,
+      limit: 2,
+      totalItems: 3,
+      totalPages: 2,
+      hasNextPage: false,
+      hasPreviousPage: true
+    });
   });
 
   test('treats regex metacharacters as literal search text', async () => {
