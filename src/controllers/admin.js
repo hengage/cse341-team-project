@@ -76,6 +76,15 @@ export const getTripAdminPage = async (req, res) => {
   });
 };
 
+export const createTrip = async (req, res) => {
+  try {
+    const trip = await tripModel.createTrip(req.body);
+    return res.status(201).json(trip);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 export const updateTrip = async (req, res) => {
   try {
     const { id } = req.params;
