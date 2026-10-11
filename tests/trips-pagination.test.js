@@ -25,6 +25,27 @@ describe('GET /api/trips pagination', () => {
     expect(ids).toEqual([...ids].sort());
   });
 
+  test('returns a final page containing fewer trips than the requested limit', async () => {
+    const response = await request(app)
+      .get('/api/trips')
+      .query({ page: 3, limit: 5 });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.map((trip) => trip.id)).toEqual([
+      'test-trip',
+      'tokyo-suburban',
+      'winter-wetlands'
+    ]);
+    expect(response.body.pagination).toEqual({
+      page: 3,
+      limit: 5,
+      totalItems: 13,
+      totalPages: 3,
+      hasNextPage: false,
+      hasPreviousPage: true
+    });
+  });
+
   test.each([
     ['page', 0],
     ['limit', 0],
