@@ -231,10 +231,10 @@ const hookUsersHydration = async () => {
             if (button.dataset.action === 'delete') {
                 await fetch(`/api/users/${userId}`, { method: 'DELETE' });
                 card.remove();
-                renderUsers(payload);
+                renderUsers(await loadAllUsers());
             }
             if (button.dataset.action === 'update') {
-                const user = payload.users.find(u => u._id === userId);
+                const user = (await loadAllUsers()).users.find(u => u._id === userId);
                 const updateForm = updateTemplateEl.content.cloneNode(true);
                 updateForm.querySelector('[data-user-id]').dataset.userId = user._id;
                 updateForm.querySelector('#update-display-name').value = user.displayName;
@@ -264,7 +264,7 @@ const hookUsersHydration = async () => {
                 card.replaceWith(updateForm);
             }
             if (button.dataset.action === 'cancel') {
-                const user = payload.users.find(u => u._id === userId);
+                const user = (await loadAllUsers()).users.find(u => u._id === userId);
                 const newCard = templateEl.content.cloneNode(true);
                 newCard.querySelector('[data-user-id]').dataset.userId = user._id;
                 newCard.querySelector('#user-id').textContent = `Id: ${user._id}`;

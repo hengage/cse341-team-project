@@ -1,4 +1,5 @@
 import { getAllUsers, getUserById, updateUser, deleteUser, getPaginatedUsers } from '../models/users.js';
+import { getRoleByName } from '../models/roles.js';
 
 const parsePositiveInteger = (value, defaultValue) => {
     if (value === undefined) {
@@ -52,9 +53,11 @@ export const getAllUsersController = async (req, res) => {
         }
 
         if (req.query.filter == "admin") {
-            query.role = "6ab5be07e1e3126d1bf5e7ec";
+            const adminRole = await getRoleByName('admin');
+            query.role = adminRole._id;
         } else if (req.query.filter == "user") {
-            query.role = "6ab5be07e1e3126d1bf5e7eb";
+            const userRole = await getRoleByName('user');
+            query.role = userRole._id;
         }
 
         if (req.query.q !== undefined) {
