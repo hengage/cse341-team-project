@@ -23,4 +23,44 @@ article.users-page {
             margin-top: 0.5rem;
         }
     }
+
+    .pagination-controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+
+        #current-page {
+            font-weight: bold;
+            padding: var(--space-xs) var(--space-lg);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-md);
+            font-family: var(--font-family-base);
+            background-color: var(--clr-primary);
+            color: var(--clr-text-alt-primary);
+            box-shadow: var(--shadow-sm);
+            transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+    }
+
+    #search-container {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+
+        p {
+            border: 1px solid #ccc;
+            padding-right: 2rem;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-md);
+            font-family: var(--font-family-base);
+            background-color: #a4f7bd39;
+
+            label, input { 
+                padding: var(--space-xs) var(--space-lg);
+             }
+        }
+    }
 }

@@ -2,12 +2,29 @@
 
 <article class="users-page">
     <h1>Welcome to the Users Management page, <%= name %></h1>
+    <div id="search-container">
+        <p>
+            <label for="filter-admin">Admin</label>
+            <input type="radio" id="filter-admin" name="filter" value="admin">
+            <label for="filter-user">User</label>
+            <input type="radio" id="filter-user" name="filter" value="user">
+        </p>
+        <input type="text" id="search" placeholder="Search users by keyword...">
+        <button type="button" id="search-button">Search</button>
+    </div>
     <div id="users-list"></div>
     <form action="/auth/logout" method="POST">
         <button type="submit">Logout</button>
     </form>
 </article>
 
+<template id="users-pagination-template">
+    <div class="pagination-controls">
+        <button type="button" id="previous-page">Previous</button>
+        <span id="current-page"></span>
+        <button type="button" id="next-page">Next</button>
+    </div>
+</template>
 
 <template id="user-card-template" >
     <div class="user-card" data-user-id="">
