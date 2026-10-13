@@ -101,13 +101,19 @@ export const getAllUsersController = async (req, res) => {
 export const updateUserController = async (req, res) => {
     try {
         const { id } = req.params;
-        const { userName, displayName, email, role } = req.body;
+        let { userName, displayName, email, role } = req.body;
 
         if (id !== req.session.user.id && req.session.user.role.name !== 'admin') {
             return res.status(403).json({ error: 'Forbidden' });
         }
         if (req.session.user.role.name !== 'admin') {
             role = req.session.user.role.name;
+        }
+        try {
+            await getUserById(id);
+        }
+        catch (error) {
+            return res.status(404).json({ error: 'User not found' });
         }
 
         const user = await updateUser(id, { userName, displayName, email, role });
@@ -124,6 +130,12 @@ export const deleteUserController = async (req, res) => {
 
         if (id !== req.session.user.id && req.session.user.role.name !== 'admin') {
             return res.status(403).json({ error: 'Forbidden' });
+        }
+        try {
+            await getUserById(id);
+        }
+        catch (error) {
+            return res.status(404).json({ error: 'User not found' });
         }
 
         const user = await deleteUser(id);
