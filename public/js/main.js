@@ -143,7 +143,7 @@ const hookUsersHydration = async () => {
     }
 
     let currentPage = 1;
-    let limit = 3;
+    let limit = 10;
     let search = '';
     let filter = '';
 
