@@ -184,3 +184,75 @@ describe('DELETE /api/users/:id', () => {
     expect(await getUserByUsername('user')).toBeNull();
   });
 });
+
+describe('User pagination, search, and filtering', async() => {
+  test('returns paginated results (with necessary metadata)', async () => {
+    const agent = await signedInAgent('admin', 'qwerty');
+    const response = await agent.get('/api/users?page=1&limit=1');
+
+    expect(response.status).toBe(200);
+    expect(response.body.users.length).toBe(1);
+    expect(response.body.page).toBe(1);
+    expect(response.body.limit).toBe(1);
+    expect(response.body.totalItems).toBe((await getAllUsers()).length);
+    expect(response.body.totalPages).toBe(Math.ceil((await getAllUsers()).length / 1));
+    expect(response.body.hasNextPage).toBe(true);
+    expect(response.body.hasPreviousPage).toBe(false);
+
+    const responsePage2 = await agent.get('/api/users?page=2&limit=1');
+    expect(responsePage2.status).toBe(200);
+    expect(responsePage2.body.users.length).toBe(1);
+    expect(responsePage2.body.page).toBe(2);
+    expect(responsePage2.body.limit).toBe(1);
+    expect(responsePage2.body.totalItems).toBe((await getAllUsers()).length);
+    expect(responsePage2.body.totalPages).toBe(Math.ceil((await getAllUsers()).length / 1));
+    expect(responsePage2.body.hasNextPage).toBe(false);
+    expect(responsePage2.body.hasPreviousPage).toBe(true);
+  });
+
+  test('returns results based on role filter', async () => {
+    const agent = await signedInAgent('admin', 'qwerty');
+    const filterText = 'admin';
+    const response = await agent.get(`/api/users?q=&filter=${filterText}&limit=1&page=1`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.users.length).toBe(1);
+    expect(response.body.users[0].username).toBe('admin');
+  });
+  
+  test('returns results based on search text', async () => {
+    const agent = await signedInAgent('admin', 'qwerty');
+    const searchText = 'admin';
+    const response = await agent.get(`/api/users?q=${searchText}&filter=&limit=1&page=1`);
+
+    console.log('Response body:', response.body); // Log the response body for debugging
+
+    expect(response.status).toBe(200);
+    expect(response.body.users.length).toBe(1);
+    expect(response.body.users[0].username).toBe('admin');
+  });
+
+  test('returns empty results if no users match the search text', async () => {
+    const agent = await signedInAgent('admin', 'qwerty');
+    const searchText = 'nonexistentuser';
+    const response = await agent.get(`/api/users?q=${searchText}&filter=&limit=1&page=1`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.users.length).toBe(0);
+    expect(response.body.page).toBe(1);
+    expect(response.body.limit).toBe(1);
+    expect(response.body.totalItems).toBe(0);
+    expect(response.body.totalPages).toBe(0);
+    expect(response.body.hasNextPage).toBe(false);
+    expect(response.body.hasPreviousPage).toBe(false);
+  });
+
+  test('returns only authenticated user if role is not admin', async () => {
+    const agent = await signedInAgent('user', 'qwerty');
+    const response = await agent.get('/api/users?q=&filter=&limit=1&page=1');
+
+    expect(response.status).toBe(200);
+    expect(typeof response.body.users).toBe('object');
+    expect(response.body.users.username).toBe('user');
+  });
+});

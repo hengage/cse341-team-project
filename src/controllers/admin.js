@@ -46,18 +46,20 @@ export const getAllUsersController = async (req, res) => {
 
         const query = {};
 
-        if (req.query.filter && req.query.filter.trim() !== 'admin' && req.query.filter.trim() !== 'user') {
+        if (req.query.filter !== undefined) {
+            if (req.query.filter && req.query.filter.trim() !== 'admin' && req.query.filter.trim() !== 'user') {
             return res.status(400).json({
                 errors: [{ field: 'filter', message: 'Invalid filter value. Only "admin" and "user" are allowed.' }]
             });
-        }
+            }
 
-        if (req.query.filter == "admin") {
-            const adminRole = await getRoleByName('admin');
-            query.role = adminRole._id;
-        } else if (req.query.filter == "user") {
-            const userRole = await getRoleByName('user');
-            query.role = userRole._id;
+            if (req.query.filter == "admin") {
+                const adminRole = await getRoleByName('admin');
+                query.role = adminRole._id;
+            } else if (req.query.filter == "user") {
+                const userRole = await getRoleByName('user');
+                query.role = userRole._id;
+            }
         }
 
         if (req.query.q !== undefined) {

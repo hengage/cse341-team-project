@@ -7,6 +7,7 @@ import roles from './seeds/roles.json' with { type: 'json' };
 import Role from '../models/schemas/roles.js';
 import users from './seeds/users.json' with { type: 'json' };
 import {createUser} from '../models/users.js';
+import User from '../models/schemas/users.js';
 
 const starterCollections = [
   ['trips', trips],
@@ -45,6 +46,8 @@ const initializeDatabase = async (db) => {
         role: role._id
     });
   }
+
+  await User.createIndexes();
 
   const confirmations = db.collection('confirmations');
   await confirmations.deleteMany({});
