@@ -149,7 +149,7 @@ export const showAdminDashboardPage = (req, res) => {
 import * as tripModel from '../models/trips.js';
 
 export const getTripAdminPage = async (req, res) => {
-  res.render('admin/trips', {
+  return res.render('admin/trips', {
     title: 'Trip Admin'
   });
 };

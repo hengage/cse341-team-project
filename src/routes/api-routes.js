@@ -154,21 +154,44 @@ const router = express.Router();
  * @swagger
  * /api/trips:
  *   get:
- *     summary: Get all trips
+ *     summary: Get a paginated list of trips
  *     tags: [Trips]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number to return
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *         description: Maximum number of trips per page
  *     responses:
  *       200:
- *         description: An array of trips
+ *         description: Paginated trip results
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Trip'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Trip'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       400:
+ *         description: Invalid page or limit
  *       500:
  *         description: Server error
  */
-router.get('/trips', tripController.getAllTrips);
+router.get('/trips', tripController.getTrips);
 
 /**
  * @swagger
