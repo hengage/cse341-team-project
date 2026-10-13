@@ -92,6 +92,21 @@ const router = express.Router();
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/Passenger'
+ *     BookingPagination:
+ *       type: object
+ *       properties:
+ *         page:
+ *           type: integer
+ *         limit:
+ *           type: integer
+ *         totalItems:
+ *           type: integer
+ *         totalPages:
+ *           type: integer
+ *         hasNextPage:
+ *           type: boolean
+ *         hasPreviousPage:
+ *           type: boolean
  *     Passenger:
  *       type: object
  *       properties:
@@ -230,17 +245,83 @@ router.get('/trips/:id/schedules', (req, res) => {
  * @swagger
  * /api/bookings:
  *   get:
- *     summary: Get all bookings
+ *     summary: Get a page of bookings
  *     tags: [Bookings]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number. Defaults to 1.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *         description: Number of bookings per page. Defaults to 10; maximum is 50.
+ *       - in: query
+ *         name: ticketClass
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [standard, premium, first]
+ *         description: Filter by exact ticket class.
+ *       - in: query
+ *         name: startDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: '2026-10-01'
+ *         description: Include bookings created at or after 00:00 UTC on this date (createdAt).
+ *       - in: query
+ *         name: endDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *           example: '2026-10-02'
+ *         description: Include bookings through this date in UTC (createdAt).
  *     responses:
  *       200:
- *         description: An array of bookings
+ *         description: A page of bookings matching the active filters, sorted newest first by createdAt.
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Booking'
+ *               type: object
+ *               properties:
+ *                 bookings:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/BookingPagination'
+ *                 filters:
+ *                   type: object
+ *                   properties:
+ *                     ticketClass:
+ *                       type: string
+ *                       nullable: true
+ *                       enum: [standard, premium, first]
+ *                       example: standard
+ *                     startDate:
+ *                       type: string
+ *                       nullable: true
+ *                       format: date
+ *                       example: '2026-10-01'
+ *                     endDate:
+ *                       type: string
+ *                       nullable: true
+ *                       format: date
+ *                       example: '2026-10-02'
+ *       400:
+ *         description: Invalid pagination or filter query parameter, malformed date, impossible date, or startDate later than endDate
  *       500:
  *         description: Server error
  */
