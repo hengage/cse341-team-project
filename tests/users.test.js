@@ -225,8 +225,6 @@ describe('User pagination, search, and filtering', async() => {
     const searchText = 'admin';
     const response = await agent.get(`/api/users?q=${searchText}&filter=&limit=1&page=1`);
 
-    console.log('Response body:', response.body); // Log the response body for debugging
-
     expect(response.status).toBe(200);
     expect(response.body.users.length).toBe(1);
     expect(response.body.users[0].username).toBe('admin');
