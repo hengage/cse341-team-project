@@ -5,6 +5,8 @@ import ticketClasses from './seeds/ticket-classes.json' with { type: 'json' };
 import trains from './seeds/trains.json' with { type: 'json' };
 import roles from './seeds/roles.json' with { type: 'json' };
 import Role from '../models/schemas/roles.js';
+import users from './seeds/users.json' with { type: 'json' };
+import {createUser} from '../models/users.js';
 
 const starterCollections = [
   ['trips', trips],
@@ -31,6 +33,17 @@ const initializeDatabase = async (db) => {
       { $set: role },
       { upsert: true, runValidators: true }
     );
+  }
+
+  for (const user of users) {
+    const role = await Role.findOne({ name: user.role });
+    await createUser({
+        displayName: user.displayName,
+        username: user.username,
+        email: user.email,
+        passwordHash: user.passwordHash,
+        role: role._id
+    });
   }
 
   const confirmations = db.collection('confirmations');
