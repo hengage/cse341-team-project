@@ -1,0 +1,16 @@
+[
+    {
+        "displayName": "Admin User",
+        "username": "admin",
+        "email": "admin@example.com",
+        "passwordHash": "$2b$12$/PqQhQ8IV.ynozXjidRz8ueQNN4hBVU3qBV4ieVPBCHTZqd8jVcYm",
+        "role": "admin"
+    },
+    {
+        "displayName": "Regular User",
+        "username": "user",
+        "email": "user@example.com",
+        "passwordHash": "$2b$12$/PqQhQ8IV.ynozXjidRz8ueQNN4hBVU3qBV4ieVPBCHTZqd8jVcYm",
+        "role": "user"
+    }
+]

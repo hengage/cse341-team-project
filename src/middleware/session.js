@@ -3,6 +3,7 @@ import MongoStore from 'connect-mongo';
 
 const nodeEnvironment = process.env.NODE_ENV?.toLowerCase() || 'development';
 const isProduction = nodeEnvironment === 'production';
+const isTest = nodeEnvironment === 'test';
 const sessionSecret = process.env.SESSION_SECRET
     || (nodeEnvironment === 'test' ? 'test-only-session-secret' : undefined);
 
@@ -23,9 +24,11 @@ export const sessionMiddleware = session({
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017',
-        dbName: process.env.MONGODB_DB_NAME || 'kizuna-rail'
+    ...(isTest ? {} : {
+        store: MongoStore.create({
+            mongoUrl: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017',
+            dbName: process.env.MONGODB_DB_NAME || 'kizuna-rail'
+        })
     }),
     cookie: sessionCookieOptions
 });

@@ -46,18 +46,20 @@ export const getAllUsersController = async (req, res) => {
 
         const query = {};
 
-        if (req.query.filter && req.query.filter.trim() !== 'admin' && req.query.filter.trim() !== 'user') {
+        if (req.query.filter !== undefined) {
+            if (req.query.filter && req.query.filter.trim() !== 'admin' && req.query.filter.trim() !== 'user') {
             return res.status(400).json({
                 errors: [{ field: 'filter', message: 'Invalid filter value. Only "admin" and "user" are allowed.' }]
             });
-        }
+            }
 
-        if (req.query.filter == "admin") {
-            const adminRole = await getRoleByName('admin');
-            query.role = adminRole._id;
-        } else if (req.query.filter == "user") {
-            const userRole = await getRoleByName('user');
-            query.role = userRole._id;
+            if (req.query.filter == "admin") {
+                const adminRole = await getRoleByName('admin');
+                query.role = adminRole._id;
+            } else if (req.query.filter == "user") {
+                const userRole = await getRoleByName('user');
+                query.role = userRole._id;
+            }
         }
 
         if (req.query.q !== undefined) {
@@ -101,13 +103,19 @@ export const getAllUsersController = async (req, res) => {
 export const updateUserController = async (req, res) => {
     try {
         const { id } = req.params;
-        const { userName, displayName, email, role } = req.body;
+        let { userName, displayName, email, role } = req.body;
 
         if (id !== req.session.user.id && req.session.user.role.name !== 'admin') {
             return res.status(403).json({ error: 'Forbidden' });
         }
         if (req.session.user.role.name !== 'admin') {
             role = req.session.user.role.name;
+        }
+        try {
+            await getUserById(id);
+        }
+        catch (error) {
+            return res.status(404).json({ error: 'User not found' });
         }
 
         const user = await updateUser(id, { userName, displayName, email, role });
@@ -124,6 +132,12 @@ export const deleteUserController = async (req, res) => {
 
         if (id !== req.session.user.id && req.session.user.role.name !== 'admin') {
             return res.status(403).json({ error: 'Forbidden' });
+        }
+        try {
+            await getUserById(id);
+        }
+        catch (error) {
+            return res.status(404).json({ error: 'User not found' });
         }
 
         const user = await deleteUser(id);
